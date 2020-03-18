@@ -1,4 +1,4 @@
-from numpy import reshape, sum
+from numpy import reshape, exp
 from numpy.random import choice
 
 
