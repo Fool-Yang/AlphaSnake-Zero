@@ -208,6 +208,8 @@ class Game:
                     # Cannot choose from an empty set
                     pass
         
+        self.draw()
+        
         # return the winner if there is one
         return tuple(snakes)[0].id if snakes else None
     

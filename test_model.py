@@ -11,7 +11,7 @@ f = open("replay.txt", 'w')
 f.write('')
 f.close()
 
-for _ in range(1):
+for _ in range(3):
     g = Game(11, 11, snake_cnt)
     g.run(Agent(net, list(range(snake_cnt))))
 net.v_net.summary()

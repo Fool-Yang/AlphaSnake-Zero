@@ -122,7 +122,7 @@ class Game:
             
             # reduce health
             for snake in snakes:
-                snake.health -= 9
+                snake.health -= 1
             
             # remove dead snakes
             # I have checked the code of the battlesnake game
