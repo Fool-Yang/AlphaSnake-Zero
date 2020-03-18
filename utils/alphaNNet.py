@@ -10,26 +10,26 @@ class AlphaNNet:
             self.v_net = ks.models.load_model(model)
         elif input_shape:
             self.v_net = ks.Sequential([
-                ks.layers.Conv2D(16, (5, 5), kernel_regularizer=l2(0.00008), use_bias=False, input_shape = input_shape),
+                ks.layers.Conv2D(32, (5, 5), use_bias=False, kernel_regularizer=l2(0.00004), input_shape = input_shape),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
-                ks.layers.Conv2D(16, (3, 3), kernel_regularizer=l2(0.00004), use_bias=False),
+                ks.layers.Conv2D(32, (3, 3), use_bias=False, kernel_regularizer=l2(0.00002)),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
-                ks.layers.Conv2D(32, (3, 3), kernel_regularizer=l2(0.00002), use_bias=False),
+                ks.layers.Conv2D(64, (3, 3), use_bias=False, kernel_regularizer=l2(0.00001)),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
-                ks.layers.Conv2D(32, (3, 3), kernel_regularizer=l2(0.00001), use_bias=False),
+                ks.layers.Conv2D(64, (3, 3), use_bias=False, kernel_regularizer=l2(0.000005)),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
-                ks.layers.Conv2D(64, (3, 3), kernel_regularizer=l2(0.000005), use_bias=False),
+                ks.layers.Conv2D(128, (3, 3), use_bias=False, kernel_regularizer=l2(0.0000025)),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
-                ks.layers.Conv2D(64, (3, 3), kernel_regularizer=l2(0.0000025), use_bias=False),
+                ks.layers.Conv2D(128, (3, 3), use_bias=False, kernel_regularizer=l2(0.00000012)),
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
                 ks.layers.Flatten(),
-                ks.layers.Dense(3, kernel_regularizer=l2(0.00001), use_bias=False),
+                ks.layers.Dense(3, use_bias=False, kernel_regularizer=l2(0.000005)),
                 ks.layers.BatchNormalization(),
                 ks.layers.Activation('sigmoid')
             ])
