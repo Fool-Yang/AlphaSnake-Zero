@@ -17,7 +17,7 @@ class colors:
 class Player:
 
     def show_page(self, page, color, total):
-        time.sleep(0.1)
+        time.sleep(0.2)
         os.system('cls')
         i=total[page]
         i=i.replace(' ','')

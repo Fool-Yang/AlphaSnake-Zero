@@ -11,7 +11,7 @@ from utils.alphaNNet import AlphaNNet
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                numEps=128,
+                numEps=512,
                 competeEps=512,
                 threshold=0.275,
                 height=11,

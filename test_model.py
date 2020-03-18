@@ -17,4 +17,3 @@ for _ in range(3):
 net.v_net.summary()
 n = input("\nHit Enter to watch replay")
 Player().main()
-net.v_net.summary()
