@@ -1,7 +1,7 @@
 from random import sample, choice, random
 from numpy import array, rot90
 
-from snake import Snake
+from utils.snake import Snake
 
 WALL = 1.0
 # mutipliers

@@ -1,9 +1,9 @@
 from numpy import array, flip
 from time import time
 
-from agent import Agent
-from game import Game
-from alphaNNet import AlphaNNet
+from utils.agent import Agent
+from utils.game import Game
+from utils.alphaNNet import AlphaNNet
 
 # https://web.stanford.edu/~surag/posts/alphazero.html
 

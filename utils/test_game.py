@@ -1,7 +1,7 @@
 from random import sample, choice, random
 from numpy import array, rot90
 
-from snake import Snake
+from utils.snake import Snake
 
 WALL = 1.0
 # mutipliers
@@ -266,25 +266,7 @@ class Game:
         # k = 1 => rotate left
         # k = 2 => rotate 180
         # k = 3 => rotate right
-        kk = rot90(array(grid), k = last_move)
-        if you.id == 0:
-            for row in kk:
-                for col in row:
-                    print(col[0],end = ' ')
-                print()
-            print()
-            for row in kk:
-                for col in row:
-                    print(col[1],end = ' ')
-                print()
-            print()
-            for row in kk:
-                for col in row:
-                    print(col[2],end = ' ')
-                print()
-            print()
-            print()
-        return kk
+        return rot90(array(grid), k = last_move)
         
     def draw(self):
         board = [[0] * self.width for _ in range(self.height)]
