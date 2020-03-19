@@ -52,6 +52,8 @@ class AlphaSnakeZeroTrainer:
                         v[j][m[j]] = max(Alice.values[snake_id][j - 1])
                     X += Alice.records[snake_id]
                     V += Alice.values[snake_id]
+                    X += self.mirror_states(Alice.records[snake_id])
+                    V += self.mirror_values(Alice.values[snake_id])
                 Alice.clear()
             print("Self play time", time() - t0)
             t0 = time()
@@ -68,6 +70,12 @@ class AlphaSnakeZeroTrainer:
             else:
                 print("Iteration", iter, "failed to beat the previouse one. WR =", frac_win)
             print("Competing time", time() - t0, "\n")
+    
+    def mirror_states(self, states):
+        return []
+        
+    def mirror_values(self, moves):
+        return []
     
     def compete(self, nnet1, nnet2):
         sep = 1
