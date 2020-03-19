@@ -1,4 +1,5 @@
 from random import sample, choice, random
+from numpy import array, rot90
 
 from utils.snake import Snake
 
@@ -73,14 +74,14 @@ class Game:
                     return snake_ids2[0]
                 if len(snake_ids2) == 0:
                     return snake_ids1[0]
-                states1 = [self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep]
-                states2 = [self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep]
+                states1 = array([self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep])
+                states2 = array([self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep])
                 moves1 = Alice.make_moves(states1, snake_ids1)
                 moves2 = Bob.make_moves(states2, snake_ids2)
                 i = 0
                 j = 0
             else:
-                states = [self.make_state(snake, last_moves[snake.id]) for snake in snakes]
+                states = array([self.make_state(snake, last_moves[snake.id]) for snake in snakes])
                 # moves are relative to last move: turn left, go straight, or turn right
                 moves = Alice.make_moves(states, snake_ids)
                 i = 0
@@ -261,48 +262,30 @@ class Game:
             for x in range(self.width):
                 grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]
         
-        if last_move == 0: # up
-            return grid
-        if last_move == 1: # right
-            return self.rorate_left(grid)
-        elif last_move == 2: # down
-            return self.up_side_down(grid)
-        else: # last_move == 3 left
-            return self.rotate_right(grid)
-    
-    def rorate_left(self, grid):
-        grid_r = [[None for row in range(len(grid))] for col in range(len(grid[0]))]
-        n = 0
-        for i in range(len(grid)):
-            m = len(grid_r)
-            for j in range(len(grid[0])):
-                m -= 1
-                grid_r[m][n] = grid[i][j]
-            n += 1
-        return grid_r
-    
-    def rotate_right(self, grid):
-        grid_r = [[None for row in range(len(grid))] for col in range(len(grid[0]))]
-        n = len(grid_r[0])
-        for i in range(len(grid)):
-            m = 0
-            n -= 1
-            for j in range(len(grid[0])):
-                grid_r[m][n] = grid[i][j]
-                m += 1
-        return grid_r
-    
-    def up_side_down(self, grid):
-        grid_r = [[None for col in range(len(grid[0]))] for row in range(len(grid))]
-        m = len(grid_r)
-        for i in range(len(grid)):
-            m -= 1
-            n = len(grid_r[0])
-            for j in range(len(grid[0])):
-                n -= 1
-                grid_r[m][n] = grid[i][j]
-        return grid_r
-    
+        # k = 0 => identity
+        # k = 1 => rotate left
+        # k = 2 => rotate 180
+        # k = 3 => rotate right
+        kk = rot90(array(grid), k = last_move)
+        if you.id == 0:
+            for row in kk:
+                for col in row:
+                    print(col[0],end = ' ')
+                print()
+            print()
+            for row in kk:
+                for col in row:
+                    print(col[1],end = ' ')
+                print()
+            print()
+            for row in kk:
+                for col in row:
+                    print(col[2],end = ' ')
+                print()
+            print()
+            print()
+        return kk
+        
     def draw(self):
         board = [[0] * self.width for _ in range(self.height)]
         

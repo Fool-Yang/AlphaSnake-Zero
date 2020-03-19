@@ -1,4 +1,4 @@
-from numpy import reshape, exp
+from numpy import exp
 from numpy.random import choice
 
 
@@ -13,13 +13,12 @@ class Agent:
             self.moves = {i:[] for i in snake_ids}
     
     def make_moves(self, states, snake_ids):
-        X = reshape(states, (-1, len(states[0]), len(states[0][0]), 3))
-        V = self.nnet.v(X)
+        V = self.nnet.v(states)
         if self.training:
             moves = [choice([0, 1, 2], p=self.softmax(v)) for v in V]
             for i in range(len(states)):
                 # record the info for traininig
-                self.records[snake_ids[i]].insert(0, X[i])
+                self.records[snake_ids[i]].insert(0, states[i])
                 self.values[snake_ids[i]].insert(0, V[i])
                 self.moves[snake_ids[i]].insert(0, moves[i])
         else:
