@@ -30,8 +30,7 @@ class AlphaSnakeZeroTrainer:
         # unless we want to use a evolution algorithm
         while True:
             iter += 1
-            new_nnet = nnet.copy()
-            Alice = Agent(new_nnet, range(self.snake_cnt), training=True)
+            Alice = Agent(nnet, range(self.snake_cnt), training=True)
             X = []
             V = []
             t0 = time()
@@ -57,6 +56,7 @@ class AlphaSnakeZeroTrainer:
                 Alice.clear()
             print("Self play time", time() - t0)
             t0 = time()
+            new_nnet = nnet.copy(lr=0.0001)
             new_nnet.train(array(X), array(V), ep=32, bs=len(X)//8)
             print("Training time", time() - t0)
             t0 = time()
