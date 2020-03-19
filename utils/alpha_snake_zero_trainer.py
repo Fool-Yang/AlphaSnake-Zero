@@ -74,8 +74,8 @@ class AlphaSnakeZeroTrainer:
     def mirror_states(self, states):
         return flip(states, axis = 2)
         
-    def mirror_values(self, moves):
-        return flip(states, axis = 1)
+    def mirror_values(self, values):
+        return flip(values, axis = 1)
     
     def compete(self, nnet1, nnet2):
         sep = 1
