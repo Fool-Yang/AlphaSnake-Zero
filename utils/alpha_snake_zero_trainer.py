@@ -1,4 +1,4 @@
-from numpy import array
+from numpy import array, flip
 from time import time
 
 from utils.agent import Agent
@@ -11,9 +11,9 @@ from utils.alphaNNet import AlphaNNet
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                numEps=512,
-                competeEps=512,
-                threshold=0.275,
+                numEps=256,
+                competeEps=256,
+                threshold=0.28,
                 height=11,
                 width=11,
                 snake_cnt=4):
@@ -72,10 +72,10 @@ class AlphaSnakeZeroTrainer:
             print("Competing time", time() - t0, "\n")
     
     def mirror_states(self, states):
-        return []
+        return flip(states, axis = 2)
         
     def mirror_values(self, moves):
-        return []
+        return flip(states, axis = 1)
     
     def compete(self, nnet1, nnet2):
         sep = 1

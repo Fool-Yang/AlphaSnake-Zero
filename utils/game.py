@@ -258,13 +258,13 @@ class Game:
         if last_move == 0: # up
             return grid
         if last_move == 1: # right
-            return self.rorate_left(grid)
+            return self.rotate_left(grid)
         elif last_move == 2: # down
             return self.up_side_down(grid)
         else: # last_move == 3 left
             return self.rotate_right(grid)
     
-    def rorate_left(self, grid):
+    def rotate_left(self, grid):
         grid_r = [[None for row in range(len(grid))] for col in range(len(grid[0]))]
         n = 0
         for i in range(len(grid)):

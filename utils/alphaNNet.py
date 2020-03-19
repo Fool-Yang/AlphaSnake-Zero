@@ -39,14 +39,14 @@ class AlphaNNet:
     def v(self, X):
         return self.v_net.predict(X)
     
-    def copy(self):
+    def copy(self, lr = 0.001):
         nnet_copy = AlphaNNet()
         # value
         nnet_copy.v_net = ks.models.clone_model(self.v_net)
         nnet_copy.v_net.build(self.v_net.layers[0].input_shape)
         nnet_copy.v_net.set_weights(self.v_net.get_weights())
         nnet_copy.v_net.compile(
-            optimizer = ks.optimizers.Adam(lr = 0.001),
+            optimizer = ks.optimizers.Adam(learning_rate = lr),
             loss = "mean_squared_error"
         )
         return nnet_copy
@@ -83,7 +83,7 @@ class AlphaNNet:
         new.build(self.v_net.layers[0].input_shape)
         new.set_weights(self.v_net.get_weights())
         new.compile(
-            optimizer = ks.optimizers.Adam(lr = 0.001),
+            optimizer = ks.optimizers.Adam(learning_rate = 0.001),
             loss = "mean_squared_error"
         )
         new.save('models/remake.h5')
