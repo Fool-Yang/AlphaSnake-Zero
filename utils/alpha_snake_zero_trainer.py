@@ -66,7 +66,7 @@ class AlphaSnakeZeroTrainer:
                 # replace with new net
                 nnet = new_nnet
                 nnet.save("nn" + str(iter))
-                print("Iteration", iter, "beats the previouse version with a WR of", frac_win, "\nIt is now the new champion!")
+                print("Iteration", iter, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
             else:
                 print("Iteration", iter, "failed to beat the previouse one. WR =", frac_win)
             print("Competing time", time() - t0, "\n")
