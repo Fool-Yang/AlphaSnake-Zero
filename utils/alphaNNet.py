@@ -7,7 +7,7 @@ class AlphaNNet:
     def __init__(self, model = None, ins = None):
         if model:
             self.v_net = ks.models.load_model(model)
-        elif input_shape:
+        elif ins:
             self.v_net = ks.Sequential([
                 ks.layers.Conv2D(32, (5, 5), use_bias=False, input_shape=ins),
                 ks.layers.BatchNormalization(axis=3),
@@ -28,8 +28,7 @@ class AlphaNNet:
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
                 ks.layers.Flatten(),
-                ks.layers.Dense(3, use_bias=False),
-                ks.layers.BatchNormalization(),
+                ks.layers.Dense(3),
                 ks.layers.Activation('sigmoid')
             ])
     
@@ -54,7 +53,7 @@ class AlphaNNet:
     def save(self, name):
         self.v_net.save('models/' + name + '.h5')
     
-    def remake(self):
+    def remake(self, weights):
         new = ks.Sequential([
             ks.layers.Conv2D(32, (5, 5), use_bias=False, input_shape=self.v_net.layers[0].input_shape[1:]),
             ks.layers.BatchNormalization(axis=3),
@@ -75,12 +74,11 @@ class AlphaNNet:
             ks.layers.BatchNormalization(axis=3),
             ks.layers.Activation('selu'),
             ks.layers.Flatten(),
-            ks.layers.Dense(3, use_bias=False),
-            ks.layers.BatchNormalization(),
+            ks.layers.Dense(3),
             ks.layers.Activation('sigmoid')
         ])
         new.build(self.v_net.layers[0].input_shape)
-        new.set_weights(self.v_net.get_weights())
+        new.set_weights(weights)
         new.compile(
             optimizer = ks.optimizers.Adam(learning_rate = 0.001),
             loss = "mean_squared_error"
