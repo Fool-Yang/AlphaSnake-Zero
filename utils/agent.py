@@ -1,4 +1,4 @@
-from numpy import exp
+from numpy import power
 from numpy.random import choice
 
 
@@ -15,7 +15,7 @@ class Agent:
     def make_moves(self, states, snake_ids):
         V = self.nnet.v(states)
         if self.training:
-            moves = [choice([0, 1, 2], p=self.softmax(v)) for v in V]
+            moves = [choice([0, 1, 2], p=self.softermax(v)) for v in V]
             for i in range(len(states)):
                 # record the info for traininig
                 self.records[snake_ids[i]].insert(0, states[i])
@@ -25,8 +25,11 @@ class Agent:
             moves = self.argmaxs(V)
         return moves
     
-    def softmax(self, z):
-        return exp(z)/sum(exp(z))
+    # a softmax-like function that highlights the higher values even more
+    def softermax(self, z):
+        # the higher the power base is, the more it highlights the higher ones
+        normalized = power(100, z)
+        return return normalized/sum(normalized)
     
     def argmaxs(self, Z):
         argmaxs = [-1] * len(Z)
