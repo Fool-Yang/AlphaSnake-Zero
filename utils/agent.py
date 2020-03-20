@@ -28,8 +28,8 @@ class Agent:
     # a softmax-like function that highlights the higher values even more
     def softermax(self, z):
         # the higher the power base is, the more it highlights the higher ones
-        normalized = power(100, z)
-        return return normalized/sum(normalized)
+        normalized = power(10000, z)
+        return normalized/sum(normalized)
     
     def argmaxs(self, Z):
         argmaxs = [-1] * len(Z)
