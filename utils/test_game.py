@@ -1,5 +1,5 @@
 from random import sample, choice, random
-from numpy import array, rot90
+from numpy import array, reshape, rot90
 
 from utils.snake import Snake
 
@@ -75,16 +75,16 @@ class Game:
                 if len(snake_ids2) == 0:
                     return snake_ids1[0]
                 states_list1 = [self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep]
-                states1 = reshape(states_list1, (-1, len(states_list1[0]), len(states_list1[0][0]), len(states_list1[0][0][0])))
+                states1 = reshape(states_list1, (-1, len(states_list1[0]), len(states_list1[0][0]), 3))
                 states_list2 = [self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep]
-                states2 = reshape(states_list2, (-1, len(states_list2[0]), len(states_list2[0][0]), len(states_list2[0][0][0])))
+                states2 = reshape(states_list2, (-1, len(states_list2[0]), len(states_list2[0][0]), 3))
                 moves1 = Alice.make_moves(states1, snake_ids1)
                 moves2 = Bob.make_moves(states2, snake_ids2)
                 i = 0
                 j = 0
             else:
                 states_list = [self.make_state(snake, last_moves[snake.id]) for snake in snakes]
-                states = reshape(states_list, (-1, len(states_list[0]), len(states_list[0][0]), len(states_list[0][0][0])))
+                states = reshape(states_list, (-1, len(states_list[0]), len(states_list[0][0]), 3))
                 # moves are relative to last move: turn left, go straight, or turn right
                 moves = Alice.make_moves(states, snake_ids)
                 i = 0
