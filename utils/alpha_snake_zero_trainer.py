@@ -54,9 +54,11 @@ class AlphaSnakeZeroTrainer:
                     X += self.mirror_states(Alice.records[snake_id])
                     V += self.mirror_values(Alice.values[snake_id])
                 Alice.clear()
+            if len(X) > 25000:
+                self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.0001)
+            new_nnet = nnet.copy(lr=0.01/iter)
             new_nnet.train(array(X), array(V), ep=32, bs=len(X)//8)
             print("Training time", time() - t0)
             t0 = time()
