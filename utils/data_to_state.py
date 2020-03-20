@@ -1,3 +1,5 @@
+from numpy import array, rot90
+
 WALL = 1.0
 # mutipliers
 HUNGER_m = 0.01
@@ -46,44 +48,8 @@ def make_state(data, last_move):
         for x in range(width):
             grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]
     
-    if last_move == 0: # up
-        return grid
-    if last_move == 1: # right
-        return rorate_left(grid)
-    elif last_move == 2: # down
-        return up_side_down(grid)
-    else: # last_move == 3 left
-        return rotate_right(grid)
-
-def rorate_left(grid):
-    grid_r = [[None for row in range(len(grid))] for col in range(len(grid[0]))]
-    n = 0
-    for i in range(len(grid)):
-        m = len(grid_r)
-        for j in range(len(grid[0])):
-            m -= 1
-            grid_r[m][n] = grid[i][j]
-        n += 1
-    return grid_r
-
-def rotate_right(grid):
-    grid_r = [[None for row in range(len(grid))] for col in range(len(grid[0]))]
-    n = len(grid_r[0])
-    for i in range(len(grid)):
-        m = 0
-        n -= 1
-        for j in range(len(grid[0])):
-            grid_r[m][n] = grid[i][j]
-            m += 1
-    return grid_r
-
-def up_side_down(grid):
-    grid_r = [[None for col in range(len(grid[0]))] for row in range(len(grid))]
-    m = len(grid_r)
-    for i in range(len(grid)):
-        m -= 1
-        n = len(grid_r[0])
-        for j in range(len(grid[0])):
-            n -= 1
-            grid_r[m][n] = grid[i][j]
-    return grid_r
+    # k = 0 => identity
+    # k = 1 => rotate left
+    # k = 2 => rotate 180
+    # k = 3 => rotate right
+    return rot90(array(grid), k = last_move)

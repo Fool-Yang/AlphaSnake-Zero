@@ -47,8 +47,6 @@ def start():
             request's data if necessary.
     """
     # print(json.dumps(data))
-    global last_move_wrapper
-    last_move_wrapper = [choice((0, 1, 2, 3))]
     
     # See https://docs.battlesnake.com/snake-customization for customizations
     
@@ -68,11 +66,21 @@ def move():
             snake AI must choose a direction to move in.
     """
     # print(json.dumps(data))
-    last_move = last_move_wrapper[0]
+    head_y, head_x = data['you']['body'][0]['y'], data['you']['body'][0]['x']
+    next_y, next_x = data['you']['body'][1]['y'], data['you']['body'][1]['x']
+    if head_y < next_y:
+        last_move = 0
+    elif head_y > next_y:
+        last_move = 2
+    elif head_x < next_x:
+        last_move = 3
+    elif head_x > next_x:
+        last_move = 1
+    else:
+        last_move = choice((0, 1, 2, 3))
     state_list = [make_state(data, last_move)]
     states = reshape(state_list, (-1, len(state_list[0]), len(state_list[0][0]), 3))
     move = (last_move + argmax(AlphaSnake.v(states)[0]) - 1) % 4
-    last_move_wrapper[0] = move
     return move_response(directions[move])
 
 

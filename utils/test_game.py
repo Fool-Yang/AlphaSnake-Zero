@@ -74,14 +74,17 @@ class Game:
                     return snake_ids2[0]
                 if len(snake_ids2) == 0:
                     return snake_ids1[0]
-                states1 = array([self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep])
-                states2 = array([self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep])
+                states_list1 = [self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep]
+                states1 = reshape(states_list1, (-1, len(states_list1[0]), len(states_list1[0][0]), len(states_list1[0][0][0])))
+                states_list2 = [self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep]
+                states2 = reshape(states_list2, (-1, len(states_list2[0]), len(states_list2[0][0]), len(states_list2[0][0][0])))
                 moves1 = Alice.make_moves(states1, snake_ids1)
                 moves2 = Bob.make_moves(states2, snake_ids2)
                 i = 0
                 j = 0
             else:
-                states = array([self.make_state(snake, last_moves[snake.id]) for snake in snakes])
+                states_list = [self.make_state(snake, last_moves[snake.id]) for snake in snakes]
+                states = reshape(states_list, (-1, len(states_list[0]), len(states_list[0][0]), len(states_list[0][0][0])))
                 # moves are relative to last move: turn left, go straight, or turn right
                 moves = Alice.make_moves(states, snake_ids)
                 i = 0
