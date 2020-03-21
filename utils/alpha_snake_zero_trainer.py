@@ -5,8 +5,6 @@ from utils.agent import Agent
 from utils.game import Game
 from utils.alphaNNet import AlphaNNet
 
-# https://web.stanford.edu/~surag/posts/alphazero.html
-
 
 class AlphaSnakeZeroTrainer:
     
@@ -58,7 +56,7 @@ class AlphaSnakeZeroTrainer:
                 self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.01/iter)
+            new_nnet = nnet.copy(lr=0.001*(0.85**iter))
             new_nnet.train(array(X), array(V), ep=32, bs=len(X)//8)
             print("Training time", time() - t0)
             t0 = time()
