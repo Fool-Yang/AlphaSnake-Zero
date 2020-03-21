@@ -25,7 +25,7 @@ for _ in range(competeEps):
         draw += 1
     elif winner_id < sep:
         win += 1
-print("1v3 WR =", file_name1, win/(competeEps), "DR = ", draw/(competeEps))
+print("1v3 WR of", file_name1, win/(competeEps), "DR =", draw/(competeEps))
 print("Competing time", time() - t0)
 sep = 1
 Alice = Agent(nnet2, range(sep))
@@ -40,7 +40,7 @@ for _ in range(competeEps):
         draw += 1
     elif winner_id < sep:
         win += 1
-print("\n1v3 WR =", file_name2, win/(competeEps), "DR = ", draw/(competeEps))
+print("\n1v3 WR of", file_name2, win/(competeEps), "DR =", draw/(competeEps))
 print("Competing time", time() - t0)
 snake_cnt = 2
 sep = snake_cnt//2
@@ -58,6 +58,6 @@ for _ in range(competeEps):
         win += 1
     else:
         loss += 1
-print("\n1v1 WR =", file_name1, win/(competeEps))
-print("1v1 WR =", file_name2, loss/(competeEps))
+print("\n1v1 WR of", file_name1, win/(competeEps))
+print("1v1 WR of", file_name2, loss/(competeEps))
 print("Competing time", time() - t0)
