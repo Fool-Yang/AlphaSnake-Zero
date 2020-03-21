@@ -10,7 +10,7 @@ class AlphaSnakeZeroTrainer:
     
     def __init__(self,
                 numEps=256,
-                competeEps=256,
+                competeEps=512,
                 threshold=0.28,
                 height=11,
                 width=11,
@@ -84,16 +84,12 @@ class AlphaSnakeZeroTrainer:
         sep = 1
         Alice = Agent(nnet1, range(sep))
         Bob = Agent(nnet2, range(sep, self.snake_cnt))
-        win = 0
-        loss = 0
+        win = 0.0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
-                win += 1
-                loss += 1
+                win += 0.25
             elif winner_id < sep:
-                win += 1
-            else:
-                loss += 1
-        return win/(win + loss)
+                win += 1.0
+        return win/(self.competeEps)
