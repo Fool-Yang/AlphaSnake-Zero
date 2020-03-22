@@ -56,7 +56,7 @@ class AlphaSnakeZeroTrainer:
                 self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.001*(0.95**iter))
+            new_nnet = nnet.copy(lr=0.0001*(0.95**iter))
             new_nnet.train(array(X), array(V), ep=32, bs=len(X))
             print("Training time", time() - t0)
             t0 = time()
