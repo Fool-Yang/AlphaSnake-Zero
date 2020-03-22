@@ -11,7 +11,7 @@ class AlphaSnakeZeroTrainer:
     def __init__(self,
                 numEps=256,
                 competeEps=512,
-                threshold=0.28,
+                threshold=0.29,
                 height=11,
                 width=11,
                 snake_cnt=4):
@@ -52,12 +52,12 @@ class AlphaSnakeZeroTrainer:
                     X += self.mirror_states(Alice.records[snake_id])
                     V += self.mirror_values(Alice.values[snake_id])
                 Alice.clear()
-            if len(X) > 25000:
+            if len(X) > 22000:
                 self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.001*(0.85**iter))
-            new_nnet.train(array(X), array(V), ep=32, bs=len(X)//8)
+            new_nnet = nnet.copy(lr=0.001*(0.95**iter))
+            new_nnet.train(array(X), array(V), ep=32, bs=len(X))
             print("Training time", time() - t0)
             t0 = time()
             # compare new net with previous net
@@ -92,4 +92,4 @@ class AlphaSnakeZeroTrainer:
                 win += 0.25
             elif winner_id < sep:
                 win += 1.0
-        return win/(self.competeEps)
+        return win/self.competeEps
