@@ -89,7 +89,7 @@ class AlphaSnakeZeroTrainer:
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
-                win += 0.25
+                win += 0.5
             elif winner_id < sep:
                 win += 1.0
         return win/self.competeEps
