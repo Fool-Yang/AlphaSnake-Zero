@@ -33,7 +33,7 @@ class AlphaNNet:
             ])
     
     def train(self, X, Y, ep = None, bs = None):
-        self.v_net.fit(X, Y, epochs = ep, batch_size = bs, verbose = 1)
+        self.v_net.fit(X, Y, epochs = ep, batch_size = bs)
     
     def v(self, X):
         return self.v_net.predict(X)
