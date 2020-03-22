@@ -10,8 +10,8 @@ class AlphaSnakeZeroTrainer:
     
     def __init__(self,
                 numEps=256,
-                competeEps=512,
-                threshold=0.29,
+                competeEps=1024,
+                threshold=0.28,
                 height=11,
                 width=11,
                 snake_cnt=4):
