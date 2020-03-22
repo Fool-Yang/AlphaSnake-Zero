@@ -38,19 +38,20 @@ class AlphaSnakeZeroTrainer:
                 g = Game(self.height, self.width, self.snake_cnt)
                 winner_id = g.run(Alice)
                 for snake_id in Alice.records:
+                    x = Alice.records[snake_id]                                                
                     v = Alice.values[snake_id]
                     m = Alice.moves[snake_id]
                     # assign estimated values
                     if snake_id == winner_id:
-                        v[0][m[0]] += (1.0 - Alice.values[snake_id][0][m[0]])/3.0
+                        v[0][m[0]] += (1.0 - v[0][m[0]])/3.0
                     else:
                         v[0][m[0]] = 0.0
-                    for j in range(1, len(Alice.records[snake_id])):
-                        v[j][m[j]] = max(Alice.values[snake_id][j - 1])
-                    X += Alice.records[snake_id]
-                    V += Alice.values[snake_id]
-                    X += self.mirror_states(Alice.records[snake_id])
-                    V += self.mirror_values(Alice.values[snake_id])
+                    for j in range(1, len(x)):
+                        v[j][m[j]] += (max(v[j - 1]) - v[j][m[j]])/3.0
+                    X += x
+                    V += v
+                    X += self.mirror_states(x)
+                    V += self.mirror_values(v)
                 Alice.clear()
             if len(X) > 22000:
                 self.numEps //= 2
