@@ -1,3 +1,7 @@
 *.pyc
 nn*.h5
 replay.txt
+*.DS_Store
+battlesnake
+.idea
+.vscode
