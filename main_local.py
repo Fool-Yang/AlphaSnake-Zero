@@ -7,7 +7,6 @@ from numpy import reshape
 from api import ping_response, start_response, move_response, end_response
 from utils.data_to_state import make_state
 from utils.alphaNNet import AlphaNNet
-from utils.agent import Agent
 
 
 @bottle.route('/')
