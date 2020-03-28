@@ -28,7 +28,8 @@ class AlphaNNet:
                 ks.layers.BatchNormalization(axis=3),
                 ks.layers.Activation('selu'),
                 ks.layers.Flatten(),
-                ks.layers.Dense(3),
+                ks.layers.Dense(3, use_bias=False),
+                ks.layers.BatchNormalization(),
                 ks.layers.Activation('sigmoid')
             ])
     
