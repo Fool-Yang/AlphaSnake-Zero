@@ -10,15 +10,16 @@ competeEps = 3
 
 file_name = input("\nEnter the model name:\n")
 net = AlphaNNet(model = "models/" + file_name + ".h5")
+net.v_net.summary()
 agent = Agent(net, list(range(snake_cnt)))
 
 f = open("replay.txt", 'w')
 f.write('')
 f.close()
 
+print("Running games...")
 for _ in range(competeEps):
     g = Game(height, width, snake_cnt)
     g.run(agent)
-net.v_net.summary()
 n = input("\nHit Enter to watch replay")
 Player().main()
