@@ -9,8 +9,8 @@ from utils.alphaNNet import AlphaNNet
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                numEps=512,
-                competeEps=512,
+                numEps=1024,
+                competeEps=1024,
                 threshold=0.275,
                 height=11,
                 width=11,
@@ -48,13 +48,23 @@ class AlphaSnakeZeroTrainer:
                     if snake_id == winner_id:
                         v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
                     else:
-                        v[0][m[0]] += (0.0 - v[0][m[0]])*p[0]
+                        v[0][m[0]] = 0.0
                     for j in range(1, len(x)):
                         v[j][m[j]] += (max(v[j - 1]) - v[j][m[j]])*p[j]
-                    X += x
-                    V += v
-                    X += self.mirror_states(x)
-                    V += self.mirror_values(v)
+                    # sampling
+                    sample_length = 8 if len(x) >= 8 else len(x)
+                    sample_x = x[:sample_length]
+                    sample_v = v[:sample_length]
+                    i = sample_length
+                    # can result in an infinite loop if sample_length is too small
+                    while i < len(x):
+                        sample_x.append(x[i])
+                        sample_v.append(v[i])
+                        i = round(1.2*i)
+                    X += sample_x
+                    V += sample_v
+                    X += self.mirror_states(sample_x)
+                    V += self.mirror_values(sample_v)
                 Alice.clear()
             if len(X) > 100000:
                 self.numEps //= 2
@@ -86,14 +96,14 @@ class AlphaSnakeZeroTrainer:
     
     def compete(self, nnet1, nnet2):
         sep = 1
-        Alice = Agent(nnet1, range(sep), mode=1, greedy=100 + self.iter)
-        Bob = Agent(nnet2, range(sep, self.snake_cnt), mode=1, greedy=100 + self.iter)
+        Alice = Agent(nnet1, range(sep))
+        Bob = Agent(nnet2, range(sep, self.snake_cnt))
         win = 0.0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
-                win += 0.5
+                win += 0.75
             elif winner_id < sep:
                 win += 1.0
         return win/self.competeEps
