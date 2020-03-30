@@ -56,6 +56,11 @@ class AlphaSnakeZeroTrainer:
                             break
                         last_max = max(v[j])
                         v[j][m[j]] += delta*p[j]
+                        # once the network is somewhat good this should never happen
+                        if v[j][m[j]] < 0.0:
+                            v[j][m[j]] = 0.0
+                        elif v[j][m[j]] > 1.0:
+                            v[j][m[j]] = 1.0
                     # sampling
                     sample_length = 8 if len(x) >= 8 else len(x)
                     sample_x = x[:sample_length]
