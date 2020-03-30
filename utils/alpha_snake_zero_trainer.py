@@ -45,12 +45,17 @@ class AlphaSnakeZeroTrainer:
                     m = Alice.moves[snake_id]
                     p = Alice.odds[snake_id]
                     # assign estimated values
+                    last_max = max(v[0])
                     if snake_id == winner_id:
                         v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
                     else:
                         v[0][m[0]] = 0.0
                     for j in range(1, len(x)):
-                        v[j][m[j]] += (max(v[j - 1]) - v[j][m[j]])*p[j]
+                        delta = max(v[j - 1]) - last_max
+                        if delta == 0.0:
+                            break
+                        last_max = max(v[j])
+                        v[j][m[j]] += delta*p[j]
                     # sampling
                     sample_length = 8 if len(x) >= 8 else len(x)
                     sample_x = x[:sample_length]
