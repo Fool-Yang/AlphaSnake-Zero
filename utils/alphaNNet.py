@@ -1,5 +1,4 @@
 from tensorflow import keras as ks
-from tensorflow.keras.regularizers import l2
 
 
 class AlphaNNet:
