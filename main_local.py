@@ -80,7 +80,7 @@ def move():
     state_list = [make_state(data, last_move)]
     states = reshape(state_list, (-1, len(state_list[0]), len(state_list[0][0]), 3))
     move = (last_move + argmax(AlphaSnake.v(states)[0]) - 1) % 4
-    return move_response(directions[move])
+    return move_response(['up', 'right', 'down', 'left'][move])
 
 
 @bottle.post('/end')
@@ -114,8 +114,6 @@ application = bottle.default_app()
 if __name__ == '__main__':
     global AlphaSnake
     AlphaSnake = AlphaNNet(model = "models/alphaSnake.h5")
-    global directions
-    directions = ['up', 'right', 'down', 'left']
     bottle.run(
         application,
         host=os.getenv('IP', '0.0.0.0'),
