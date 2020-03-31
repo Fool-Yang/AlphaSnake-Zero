@@ -49,9 +49,9 @@ def start():
     
     # See https://docs.battlesnake.com/snake-customization for customizations
     
-    color = '#00FFFF'
-    headType = 'bwc-scarf'
-    tailType = 'freckled'
+    color = '#8A2BE2'
+    headType = 'sand-worm'
+    tailType = 'bolt'
     
     return start_response(color, headType, tailType)
 
