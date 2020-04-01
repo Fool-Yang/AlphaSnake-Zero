@@ -11,7 +11,7 @@ class AlphaSnakeZeroTrainer:
     def __init__(self,
                 numEps=1024,
                 competeEps=1024,
-                threshold=0.275,
+                threshold=0.2725,
                 height=11,
                 width=11,
                 snake_cnt=4
@@ -49,7 +49,7 @@ class AlphaSnakeZeroTrainer:
                     if snake_id == winner_id:
                         v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
                     else:
-                        v[0][m[0]] = 0.0
+                        v[0][m[0]] = -1.0
                     for j in range(1, len(x)):
                         delta = max(v[j - 1]) - last_max
                         if delta == 0.0:
@@ -57,8 +57,8 @@ class AlphaSnakeZeroTrainer:
                         last_max = max(v[j])
                         v[j][m[j]] += delta*p[j]
                         # once the network is somewhat good this should never happen
-                        if v[j][m[j]] < 0.0:
-                            v[j][m[j]] = 0.0
+                        if v[j][m[j]] < -1.0:
+                            v[j][m[j]] = -1.0
                         elif v[j][m[j]] > 1.0:
                             v[j][m[j]] = 1.0
                     # sampling
@@ -70,7 +70,7 @@ class AlphaSnakeZeroTrainer:
                     while i < len(x):
                         sample_x.append(x[i])
                         sample_v.append(v[i])
-                        i = round(1.2*i)
+                        i = round(1.1*i)
                     X += sample_x
                     V += sample_v
                     X += self.mirror_states(sample_x)
@@ -80,8 +80,8 @@ class AlphaSnakeZeroTrainer:
                 self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.001*(0.96**self.iter))
-            new_nnet.train(array(X), array(V), ep=32, bs=32000)
+            new_nnet = nnet.copy(lr=0.0001*(0.97**self.iter))
+            new_nnet.train(array(X), array(V), ep=32, bs=28000)
             print("Training time", time() - t0)
             t0 = time()
             # compare new net with previous net

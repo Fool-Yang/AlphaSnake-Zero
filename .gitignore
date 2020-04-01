@@ -1,3 +1,4 @@
 *.pyc
 nn*.h5
+res*.h5
 replay.txt
