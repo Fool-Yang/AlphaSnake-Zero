@@ -14,7 +14,7 @@ f.close()
 
 print("Running games...")
 t0 = time()
-for i in range(1, 145):
+for i in range(1, 155):
     file_name = "models/nn" + str(i) + ".h5"
     try:
         net = AlphaNNet(model = file_name)
