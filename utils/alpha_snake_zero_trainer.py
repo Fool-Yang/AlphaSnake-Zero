@@ -106,8 +106,8 @@ class AlphaSnakeZeroTrainer:
     
     def compete(self, nnet1, nnet2):
         sep = 1
-        Alice = Agent(nnet1, range(sep))
-        Bob = Agent(nnet2, range(sep, self.snake_cnt))
+        Alice = Agent(nnet1)
+        Bob = Agent(nnet2)
         win = 0.0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
