@@ -14,7 +14,8 @@ class AlphaSnakeZeroTrainer:
                 threshold=0.2725,
                 height=11,
                 width=11,
-                snake_cnt=4
+                snake_cnt=4,
+                name='nn',
                 iter=0):
         
         self.numEps = numEps
@@ -23,6 +24,7 @@ class AlphaSnakeZeroTrainer:
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
+        self.name = name
         self.iter = iter
     
     def train(self, nnet):
@@ -89,7 +91,7 @@ class AlphaSnakeZeroTrainer:
             if frac_win > self.threshold:
                 # replace with new net
                 nnet = new_nnet
-                nnet.save("res" + str(self.iter))
+                nnet.save(name + str(self.iter))
                 print("Iteration", self.iter, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
             else:
                 print("Iteration", self.iter, "failed to beat the previouse one. WR =", frac_win)
