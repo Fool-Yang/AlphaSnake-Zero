@@ -1,13 +1,13 @@
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
-from tensorflow.keras.models import Model, clone_model
+from tensorflow.keras.models import Model, load_model, clone_model
 
 
 class AlphaNNet:
     
     def __init__(self, model = None, ins = None):
         if model:
-            self.v_net = ks.models.load_model(model)
+            self.v_net = load_model(model)
         elif ins:
             X = Input(ins)
             H = BatchNormalization(axis=3)(X)
