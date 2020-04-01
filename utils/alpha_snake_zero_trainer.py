@@ -89,7 +89,7 @@ class AlphaSnakeZeroTrainer:
             if frac_win > self.threshold:
                 # replace with new net
                 nnet = new_nnet
-                nnet.save("nn" + str(self.iter))
+                nnet.save("res" + str(self.iter))
                 print("Iteration", self.iter, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
             else:
                 print("Iteration", self.iter, "failed to beat the previouse one. WR =", frac_win)
