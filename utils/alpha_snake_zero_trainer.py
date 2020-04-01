@@ -14,9 +14,7 @@ class AlphaSnakeZeroTrainer:
                 threshold=0.2725,
                 height=11,
                 width=11,
-                snake_cnt=4,
-                name='nn',
-                iter=0):
+                snake_cnt=4):
         
         self.numEps = numEps
         self.competeEps = competeEps
@@ -24,15 +22,13 @@ class AlphaSnakeZeroTrainer:
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
-        self.name = name
-        self.iter = iter
     
-    def train(self, nnet):
+    def train(self, nnet, name="nn", itr = 0):
         # for training, all agents uses the same nnet
         # unless we want to use a evolution algorithm
         while True:
-            self.iter += 1
-            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + iter)
+            itr += 1
+            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + itr)
             X = []
             V = []
             t0 = time()
@@ -82,7 +78,7 @@ class AlphaSnakeZeroTrainer:
                 self.numEps //= 2
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.0001*(0.97**self.iter))
+            new_nnet = nnet.copy(lr=0.0001*(0.97**itr))
             new_nnet.train(array(X), array(V), ep=32, bs=28000)
             print("Training time", time() - t0)
             t0 = time()
@@ -91,10 +87,10 @@ class AlphaSnakeZeroTrainer:
             if frac_win > self.threshold:
                 # replace with new net
                 nnet = new_nnet
-                nnet.save(name + str(self.iter))
-                print("Iteration", self.iter, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
+                nnet.save(name + str(itr))
+                print("Iteration", itr, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
             else:
-                print("Iteration", self.iter, "failed to beat the previouse one. WR =", frac_win)
+                print("Iteration", itr, "failed to beat the previouse one. WR =", frac_win)
             print("Competing time", time() - t0, "\n")
     
     def mirror_states(self, states):

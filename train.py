@@ -8,5 +8,5 @@ if start == 0:
     net = AlphaNNet(ins = (21, 21, 3))
 else:
     net = AlphaNNet(model = "models/" + name + str(start) + ".h5")
-a = AlphaSnakeZeroTrainer(name = name, iter = start)
-a.train(net)
+a = AlphaSnakeZeroTrainer()
+a.train(net, name = name, itr = start)
