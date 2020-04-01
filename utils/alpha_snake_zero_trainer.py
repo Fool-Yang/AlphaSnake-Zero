@@ -24,10 +24,14 @@ class AlphaSnakeZeroTrainer:
         self.snake_cnt = snake_cnt
     
     def train(self, nnet, name="nn", itr = 0):
-        # for training, all agents uses the same nnet
-        # unless we want to use a evolution algorithm
+        health_dec = 9
         while True:
             itr += 1
+            if itr > 64:
+                health_dec = 1
+            elif itr > 32:
+                health_dec = 3
+            # for training, all agents uses the same nnet
             Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + itr)
             X = []
             V = []
@@ -35,7 +39,7 @@ class AlphaSnakeZeroTrainer:
             # the loop below can use distributed computing
             for ep in range(self.numEps):
                 # collect examples from a new game
-                g = Game(self.height, self.width, self.snake_cnt)
+                g = Game(self.height, self.width, self.snake_cnt, health_dec)
                 winner_id = g.run(Alice)
                 for snake_id in Alice.records:
                     x = Alice.records[snake_id]                                                
