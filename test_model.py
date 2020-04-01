@@ -11,7 +11,7 @@ competeEps = 3
 file_name = input("\nEnter the model name:\n")
 net = AlphaNNet(model = "models/" + file_name + ".h5")
 net.v_net.summary()
-agent = Agent(net, list(range(snake_cnt)))
+agent = Agent(net)
 
 f = open("replay.txt", 'w')
 f.write('')

@@ -30,7 +30,7 @@ class AlphaSnakeZeroTrainer:
         # unless we want to use a evolution algorithm
         while True:
             self.iter += 1
-            Alice = Agent(nnet, range(self.snake_cnt), mode=0, greedy=10 + iter)
+            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + iter)
             X = []
             V = []
             t0 = time()
