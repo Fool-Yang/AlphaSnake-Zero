@@ -13,7 +13,7 @@ MY_HEAD = -1.0
 
 class Game:
     
-    def __init__(self, height, width, snake_cnt):
+    def __init__(self, height, width, snake_cnt, health_dec = 1):
         
         # standard starting board positions (in order) for 7x7, 11x11, and 19x19
         # battlesnake uses random positions for any non-standard board size
@@ -32,6 +32,7 @@ class Game:
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
+        self.health_dec = health_dec
         
         self.snakes = [Snake(ID, 100, [positions[ID]] * 3) for ID in range(snake_cnt)]
         for snake in self.snakes:
@@ -137,7 +138,7 @@ class Game:
             
             # reduce health
             for snake in snakes:
-                snake.health -= 1
+                snake.health -= self.health_dec
             
             # remove dead snakes
             # I have checked the code of the battlesnake game
