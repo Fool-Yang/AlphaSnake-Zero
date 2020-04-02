@@ -11,11 +11,11 @@ class AlphaNNet:
         elif ins:
             X = Input(ins)
             
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(X)))
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(X)))
             
             H_shortcut = H
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), padding='same', use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), padding='same', use_bias=False)(H))
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), padding='same', use_bias=False)(H)))
+            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), padding='same', use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             Y = Activation('tanh')(Dense(3)(Flatten()(H)))
