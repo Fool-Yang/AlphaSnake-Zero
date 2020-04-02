@@ -10,27 +10,13 @@ class AlphaNNet:
             self.v_net = load_model(model)
         elif ins:
             X = Input(ins)
-            H = BatchNormalization(axis=3)(X)
             
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(X)))
+            
+            H_shortcut = H
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), padding='same', use_bias=False)(H)))
+            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), padding='same', use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
-            
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
-            H = Activation('relu')(Add()([H, H_shortcut]))
-            
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
-            H = Activation('relu')(Add()([H, H_shortcut]))
-            
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
             
             Y = Activation('tanh')(Dense(3)(Flatten()(H)))
             
@@ -50,7 +36,7 @@ class AlphaNNet:
         nnet_copy.v_net.set_weights(self.v_net.get_weights())
         nnet_copy.v_net.compile(
             optimizer = Adam(learning_rate = lr),
-            loss = "mean_squared_error"
+            loss = 'mean_squared_error'
         )
         return nnet_copy
     
