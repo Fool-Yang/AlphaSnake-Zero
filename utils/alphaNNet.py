@@ -10,27 +10,28 @@ class AlphaNNet:
             self.v_net = load_model(model)
         elif ins:
             X = Input(ins)
-            H = BatchNormalization(axis=3)(X)
             
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (5, 5), use_bias=False)(X)))
+            
+            H_shortcut = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (5, 5), use_bias=False)(H)))
             H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
             H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
-            H = Activation('relu')(Add()([H, H_shortcut]))
-            
-            H_shortcut = BatchNormalization(axis=3)(Conv2D(64, (7, 7), use_bias=False)(H))
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
+            H_shortcut = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (5, 5), use_bias=False)(H)))
             H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
             H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
+            H_shortcut = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (5, 5), use_bias=False)(H)))
             H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
+            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
+            H = Activation('relu')(Add()([H, H_shortcut]))
+            
+            H_shortcut = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (5, 5), use_bias=False)(H)))
+            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H)))
+            H = BatchNormalization(axis=3)(Conv2D(64, (3, 3), use_bias=False)(H))
+            H = Activation('relu')(Add()([H, H_shortcut]))
             
             Y = Activation('tanh')(Dense(3)(Flatten()(H)))
             
