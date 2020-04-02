@@ -51,7 +51,7 @@ class AlphaNNet:
         nnet_copy.v_net.set_weights(self.v_net.get_weights())
         nnet_copy.v_net.compile(
             optimizer = Adam(learning_rate = lr),
-            loss = "mean_squared_error"
+            loss = 'mean_squared_error'
         )
         return nnet_copy
     
