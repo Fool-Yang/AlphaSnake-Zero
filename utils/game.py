@@ -241,8 +241,8 @@ class Game:
         """
         
         # gotta do the math to recenter the grid
-        width = self.width * 2 - 1
-        height = self.height * 2 - 1
+        width = self.width * 2 + 1
+        height = self.height * 2 + 1
         grid = [[[0.0, WALL, 0.0] for col in range(width)] for row in range(height)]
         center_y = height//2
         center_x = width//2

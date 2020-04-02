@@ -38,8 +38,8 @@ def make_state(data, last_move):
     head_x = you['body'][0]['x']
     board[head_y][head_x] = [MY_HEAD] * 3
     
-    g_width = width * 2 - 1
-    g_height = height * 2 - 1
+    g_width = width * 2 + 1
+    g_height = height * 2 + 1
     grid = [[[0.0, WALL, 0.0] for col in range(g_width)] for row in range(g_height)]
     center_y = g_height//2
     center_x = g_width//2
