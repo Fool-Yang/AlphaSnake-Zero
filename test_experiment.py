@@ -44,7 +44,7 @@ for i in range(1, 155):
     s = starvation/competeEps
     fe = food_eaten/competeEps
     gl = game_length/competeEps
-    log = ', '.join(map(str, [wc, bc, headc, s, fe, gl])) + '\n'
+    log = ', '.join(map(str, [wc, bc, hc, s, fe, gl])) + '\n'
     f = open("results.txt", 'a')
     f.write(log)
     f.close()
