@@ -336,13 +336,13 @@ class Snake:
             x = body[0][1] - 1
         body.insert(0, (y, x))
         tail = body.pop()
-
+        
         # return the new head, the old head and the removed tail
         # tells the Game how to up date the board sets
         # don't remove the tail if it is on top of another body
         if tail == self.body[-1]:
             tail = None
-
+        
         return (body[0], body[1], tail)
     
     def grow(self):
