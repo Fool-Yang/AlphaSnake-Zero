@@ -1,8 +1,8 @@
 from random import sample, choice, random
 from numpy import array, reshape, rot90
 
-WALL = 1.0
-MY_HEAD = -1.0
+WALL = -1.0
+MY_HEAD = 1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
@@ -248,13 +248,13 @@ class Game:
         for snake in self.snakes:
             body = snake.body
             # get head
-            board[body[0][0]][body[0][1]][0] = (len(body) - (length_minus_half)) * HEAD_m
+            board[body[0][0]][body[0][1]][0] = (length_minus_half - len(body)) * HEAD_m
             # get the rest of the body
-            dist = 1
+            dist = -1
             # Don't do the body[-1:0:-1] slicing. It will copy the list
             for i in range(len(body) - 1, 0, -1):
                 board[body[i][0]][body[i][1]][1] = dist * SNAKE_m
-                dist += 1
+                dist -= 1
         
         for food in self.food:
             board[food[0]][food[1]][2] = (101 - you.health) * HUNGER_m

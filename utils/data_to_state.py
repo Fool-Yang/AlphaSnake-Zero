@@ -1,7 +1,7 @@
 from numpy import array, rot90
 
-WALL = 1.0
-MY_HEAD = -1.0
+WALL = -1.0
+MY_HEAD = 1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
@@ -22,13 +22,13 @@ def make_state(data, last_move):
     for snake in data['board']['snakes']:
         body = snake['body']
         # get head
-        board[body[0]['y']][body[0]['x']][0] = (len(body) - (length_minus_half)) * HEAD_m
+        board[body[0]['y']][body[0]['x']][0] = (length_minus_half - len(body)) * HEAD_m
         # get the rest of the body
-        dist = 1
+        dist = -1
         # Don't do the body[-1:0:-1] slicing. It will copy the list
         for i in range(len(body) - 1, 0, -1):
             board[body[i]['y']][body[i]['x']][1] = dist * SNAKE_m
-            dist += 1
+            dist -= 1
     
     for food in data['board']['food']:
         board[food['y']][food['x']][2] = (101 - you['health']) * HUNGER_m
