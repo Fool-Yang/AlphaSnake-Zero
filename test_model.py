@@ -1,6 +1,6 @@
 from utils.alphaNNet import AlphaNNet
 from utils.agent import Agent
-from utils.test_game import Game
+from utils.game import Game
 from player import Player
 
 height = 11
@@ -20,6 +20,6 @@ f.close()
 print("Running games...")
 for _ in range(competeEps):
     g = Game(height, width, snake_cnt)
-    g.run(agent)
+    g.run(agent, show=True)
 n = input("\nHit Enter to watch replay")
 Player().main()

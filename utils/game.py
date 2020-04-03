@@ -4,11 +4,11 @@ from numpy import array, reshape, rot90
 from utils.snake import Snake
 
 WALL = 1.0
+MY_HEAD = -1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
 HEAD_m = 0.04
-MY_HEAD = -1.0
 
 
 class Game:
@@ -60,7 +60,7 @@ class Game:
     # they have defferent algorithms, resulting in different rules
     # https://github.com/BattlesnakeOfficial/engine/blob/master/rules/tick.go
     # I am using the online version (first one)
-    def run(self, Alice, Bob=None, sep=None):
+    def run(self, Alice, Bob=None, sep=None, show=False):
         if Bob:
             snake_ids1 = list(range(sep))
             snake_ids2 = list(range(sep, self.snake_cnt))
@@ -69,6 +69,9 @@ class Game:
         else:
             snake_ids = list(range(self.snake_cnt))
             last_moves = {i: choice((0, 1, 2, 3)) for i in range(self.snake_cnt)}
+        
+        if show:
+            self.draw()
         
         snakes = self.snakes
         # game procedures
@@ -135,6 +138,9 @@ class Game:
                     # no one enters this cell
                     if tail not in self.heads:
                         self.empty_positions.add(tail)
+            
+            if show:
+                self.draw()
             
             # reduce health
             for snake in snakes:
@@ -225,6 +231,9 @@ class Game:
                     # Cannot choose from an empty set
                     pass
         
+        if show:
+            self.draw()
+        
         # return the winner if there is one
         return tuple(snakes)[0].id if snakes else None
     
@@ -282,3 +291,24 @@ class Game:
         # k = 2 => rotate 180
         # k = 3 => rotate right
         return rot90(array(grid), k = last_move)
+    
+    def draw(self):
+        board = [[0] * self.width for _ in range(self.height)]
+        
+        for food in self.food:
+            board[food[0]][food[1]] = 9
+        
+        for snake in sorted(self.snakes, key = lambda s: len(s.body)):
+            # head might go out of bound
+            head_y, head_x = snake.body[0]
+            if head_y >= 0 and head_y < self.height and head_x >= 0 and head_x < self.width:
+                board[snake.body[0][0]][snake.body[0][1]] = -(snake.id + 1)
+        for snake in self.snakes:
+            for i in range(1, len(snake.body)):
+                board[snake.body[i][0]][snake.body[i][1]] = snake.id + 1
+        
+        f = open("replay.txt", 'a')
+        for row in board:
+            f.write(str(row) + '\n')
+        f.write('\n')
+        f.close()

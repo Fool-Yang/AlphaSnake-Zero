@@ -1,11 +1,11 @@
 from numpy import array, rot90
 
 WALL = 1.0
+MY_HEAD = -1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
 HEAD_m = 0.04
-MY_HEAD = -1.0
 
 def make_state(data, last_move):
     width = data['board']['width']
