@@ -2,7 +2,7 @@ from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
 from utils.alphaNNet import AlphaNNet
 
 
-name = int(input("Enter net family name:\n"))
+name = input("Enter net family name:\n")
 start = int(input("Enter starting iteration:\n"))
 if start == 0:
     net = AlphaNNet(ins = (23, 23, 3))
