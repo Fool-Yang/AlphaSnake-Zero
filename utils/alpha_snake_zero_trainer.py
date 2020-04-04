@@ -24,6 +24,11 @@ class AlphaSnakeZeroTrainer:
         self.snake_cnt = snake_cnt
     
     def train(self, nnet, name="nn", itr = 0):
+        # log
+        if itr == 0:
+            f = open("results.txt", 'w')
+            f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
+            f.close()
         health_dec = 9
         while True:
             itr += 1
@@ -31,6 +36,13 @@ class AlphaSnakeZeroTrainer:
                 health_dec = 1
             elif itr > 32:
                 health_dec = 3
+            # log
+            wall_collision = 0
+            body_collision = 0
+            head_collision = 0
+            starvation = 0
+            food_eaten = 0
+            game_length = 0
             # for training, all agents uses the same nnet
             Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + itr)
             X = []
@@ -41,6 +53,13 @@ class AlphaSnakeZeroTrainer:
                 # collect examples from a new game
                 g = Game(self.height, self.width, self.snake_cnt, health_dec)
                 winner_id = g.run(Alice)
+                # log
+                wall_collision += g.wall_collision
+                body_collision += g.body_collision
+                head_collision += g.head_collision
+                starvation += g.starvation
+                food_eaten += g.food_eaten
+                game_length += g.game_length
                 for snake_id in Alice.records:
                     x = Alice.records[snake_id]                                                
                     v = Alice.values[snake_id]
@@ -83,18 +102,23 @@ class AlphaSnakeZeroTrainer:
             print("Self play time", time() - t0)
             t0 = time()
             new_nnet = nnet.copy(lr=0.0001*(0.97**itr))
-            new_nnet.train(array(X), array(V), ep=32, bs=28000)
+            new_nnet.train(array(X), array(V), ep=32, bs=4096)
             print("Training time", time() - t0)
             t0 = time()
             # compare new net with previous net
-            frac_win = self.compete(new_nnet, nnet)
-            if frac_win > self.threshold:
+            score = self.compete(new_nnet, nnet)
+            if score > self.threshold:
                 # replace with new net
                 nnet = new_nnet
                 nnet.save(name + str(itr))
-                print("Iteration", itr, "beats the previouse version. WR =", frac_win, "\nIt is now the new champion!")
+                print("Iteration", itr, "beats the previouse version. score =", score, "\nIt is now the new champion!")
+                log_array = [itr, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
+                log = ', '.join(map(str, log_array)) + '\n'
+                f = open("results.txt", 'a')
+                f.write(log)
+                f.close()
             else:
-                print("Iteration", itr, "failed to beat the previouse one. WR =", frac_win)
+                print("Iteration", itr, "failed to beat the previouse one. score =", score)
             print("Competing time", time() - t0, "\n")
     
     def mirror_states(self, states):
@@ -111,11 +135,15 @@ class AlphaSnakeZeroTrainer:
         Alice = Agent(nnet1)
         Bob = Agent(nnet2)
         win = 0.0
+        loss = 0.0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
-                win += 0.75
+                win += 1.5
+                loss += 1.0                
             elif winner_id < sep:
-                win += 1.0
-        return win/self.competeEps
+                win += 3.0
+            else:
+                loss += 1.0
+        return win/(win + loss)
