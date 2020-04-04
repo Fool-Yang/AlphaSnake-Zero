@@ -61,7 +61,7 @@ class AlphaSnakeZeroTrainer:
                 food_eaten += g.food_eaten
                 game_length += g.game_length
                 for snake_id in Alice.records:
-                    x = Alice.records[snake_id]                                                
+                    x = Alice.records[snake_id]
                     v = Alice.values[snake_id]
                     m = Alice.moves[snake_id]
                     p = Alice.odds[snake_id]
@@ -141,7 +141,7 @@ class AlphaSnakeZeroTrainer:
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
                 win += 1.5
-                loss += 1.0                
+                loss += 1.0
             elif winner_id < sep:
                 win += 3.0
             else:
