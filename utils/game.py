@@ -43,6 +43,14 @@ class Game:
         # two board sets are used to reduce run time
         self.heads = {snake.body[0]: {snake} for snake in self.snakes}
         self.bodies = {snake.body[i] for snake in self.snakes for i in range(1, len(snake.body))}
+        
+        # log
+        self.wall_collision = 0
+        self.body_collision = 0
+        self.head_collision = 0
+        self.starvation = 0
+        self.food_eaten = 0
+        self.game_length = 0
     
     # game rules
     # https://github.com/BattlesnakeOfficial/rules/blob/master/standard.go
@@ -66,6 +74,9 @@ class Game:
         snakes = self.snakes
         # game procedures
         while len(snakes) > 1:
+            
+            self.game_length += 1
+            
             # ask for moves
             if Bob:
                 # to speed up the competing process
@@ -144,18 +155,22 @@ class Game:
                 # check for wall collisions
                 if head[0] < 0 or head[0] >= self.height or head[1] < 0 or head[1] >= self.width:
                     kills.add(snake)
+                    self.wall_collision += 1
                 # check for body collisions
                 elif head in self.bodies:
                     kills.add(snake)
+                    self.body_collision += 1
                 # check for head on collisions
                 elif len(self.heads[head]) > 1:
                     for s in self.heads[head]:
                         if len(snake.body) <= len(s.body) and s != snake:
                             kills.add(snake)
+                            self.head_collision += 1
                             break
                 # check for starvation
                 elif snake.health <= 0:
                     kills.add(snake)
+                    self.starvation += 1
             # remove from snakes set
             for snake in kills:
                 # update board sets
@@ -198,6 +213,7 @@ class Game:
                     self.food.remove(food)
                     snake.health = 100
                     snake.grow()
+                    self.food_eaten += 1
             
             # spawn food
             if len(self.food) == 0:
