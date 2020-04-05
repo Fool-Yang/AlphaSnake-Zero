@@ -1,4 +1,4 @@
 *.pyc
 *[0-9]*.h5
-replay.txt
-log.txt
+replay.rep
+log.csv

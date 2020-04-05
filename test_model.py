@@ -13,7 +13,7 @@ net = AlphaNNet(model = "models/" + file_name + ".h5")
 net.v_net.summary()
 agent = Agent(net)
 
-f = open("replay.txt", 'w')
+f = open("replay.rep", 'w')
 f.write('')
 f.close()
 

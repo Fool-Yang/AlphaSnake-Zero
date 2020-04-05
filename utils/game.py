@@ -305,7 +305,7 @@ class Game:
             for i in range(1, len(snake.body)):
                 board[snake.body[i][0]][snake.body[i][1]] = snake.id + 1
         
-        f = open("replay.txt", 'a')
+        f = open("replay.rep", 'a')
         for row in board:
             f.write(str(row) + '\n')
         f.write('\n')

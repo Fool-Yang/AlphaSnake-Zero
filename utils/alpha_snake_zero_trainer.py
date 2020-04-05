@@ -27,7 +27,7 @@ class AlphaSnakeZeroTrainer:
         # log
         new_generation = True
         if itr == 0:
-            f = open("log.txt", 'w')
+            f = open("log.csv", 'w')
             f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
             f.close()
         health_dec = 9
@@ -103,7 +103,7 @@ class AlphaSnakeZeroTrainer:
                 log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
                 log_array = array(log_list)/self.numEps
                 log = str(itr) + ', ' + ', '.join(map(str, log_array)) + '\n'
-                f = open("log.txt", 'a')
+                f = open("log.csv", 'a')
                 f.write(log)
                 f.close()
             print("Self play time", time() - t0)

@@ -61,7 +61,7 @@ class Player:
         print(i+'\n')
         
     def main(self):
-        file_name = "replay.txt"#input("Enter the replay file name:\n")
+        file_name = "replay.rep"#input("Enter the replay file name:\n")
         f=open(file_name)
         total=f.read()
         total=total.split('\n\n')
