@@ -25,6 +25,7 @@ class AlphaSnakeZeroTrainer:
     
     def train(self, nnet, name="nn", itr = 0):
         # log
+        new_generation = True
         if itr == 0:
             f = open("log.txt", 'w')
             f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
@@ -98,6 +99,13 @@ class AlphaSnakeZeroTrainer:
                 Alice.clear()
             if len(X) > 100000:
                 self.numEps //= 2
+            if new_generation:
+                log_list = [itr, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
+                log_array = array(log_list)/self.numEps
+                log = ', '.join(map(str, log_array)) + '\n'
+                f = open("log.txt", 'a')
+                f.write(log)
+                f.close()
             print("Self play time", time() - t0)
             t0 = time()
             new_nnet = nnet.copy(lr=0.0001*(0.97**itr))
@@ -107,16 +115,12 @@ class AlphaSnakeZeroTrainer:
             t0 = time()
             # compare new net with previous net
             score = self.compete(new_nnet, nnet)
-            if score > self.threshold:
+            new_generation = score > self.threshold
+            if new_generation:
                 # replace with new net
                 nnet = new_nnet
                 nnet.save(name + str(itr))
                 print("Iteration", itr, "beats the previouse version. score =", score, "\nIt is now the new champion!")
-                log_array = [itr, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
-                log = ', '.join(map(str, log_array)) + '\n'
-                f = open("log.txt", 'a')
-                f.write(log)
-                f.close()
             else:
                 print("Iteration", itr, "failed to beat the previouse one. score =", score)
             print("Competing time", time() - t0, "\n")
