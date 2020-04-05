@@ -100,9 +100,9 @@ class AlphaSnakeZeroTrainer:
             if len(X) > 100000:
                 self.numEps //= 2
             if new_generation:
-                log_list = [itr, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
+                log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
                 log_array = array(log_list)/self.numEps
-                log = ', '.join(map(str, log_array)) + '\n'
+                log = str(itr) + ', ' + ', '.join(map(str, log_array)) + '\n'
                 f = open("log.txt", 'a')
                 f.write(log)
                 f.close()
