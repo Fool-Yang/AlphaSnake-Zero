@@ -11,7 +11,7 @@ class AlphaSnakeZeroTrainer:
     def __init__(self,
                 numEps=1024,
                 competeEps=1024,
-                threshold=0.55,
+                threshold=0.27,
                 height=11,
                 width=11,
                 snake_cnt=4):
@@ -31,7 +31,6 @@ class AlphaSnakeZeroTrainer:
             f.close()
         health_dec = 9
         while True:
-            itr += 1
             if itr > 64:
                 health_dec = 1
             elif itr > 32:
@@ -103,6 +102,7 @@ class AlphaSnakeZeroTrainer:
             t0 = time()
             new_nnet = nnet.copy(lr=0.0001*(0.97**itr))
             new_nnet.train(array(X), array(V), ep=32, bs=4096)
+            itr += 1
             print("Training time", time() - t0)
             t0 = time()
             # compare new net with previous net
@@ -134,16 +134,16 @@ class AlphaSnakeZeroTrainer:
         sep = 1
         Alice = Agent(nnet1)
         Bob = Agent(nnet2)
-        win = 0.0
-        loss = 0.0
+        win = 0
+        loss = 0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=sep)
             if winner_id is None:
-                win += 1.5
-                loss += 1.0
+                win += 1
+                loss += 1
             elif winner_id < sep:
-                win += 3.0
+                win += 1
             else:
-                loss += 1.0
+                loss += 1
         return win/(win + loss)
