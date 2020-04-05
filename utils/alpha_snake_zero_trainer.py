@@ -26,7 +26,7 @@ class AlphaSnakeZeroTrainer:
     def train(self, nnet, name="nn", itr = 0):
         # log
         if itr == 0:
-            f = open("results.txt", 'w')
+            f = open("log.txt", 'w')
             f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
             f.close()
         health_dec = 9
@@ -114,7 +114,7 @@ class AlphaSnakeZeroTrainer:
                 print("Iteration", itr, "beats the previouse version. score =", score, "\nIt is now the new champion!")
                 log_array = [itr, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
                 log = ', '.join(map(str, log_array)) + '\n'
-                f = open("results.txt", 'a')
+                f = open("log.txt", 'a')
                 f.write(log)
                 f.close()
             else:
