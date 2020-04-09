@@ -1,4 +1,5 @@
 from numpy import array, flip
+from math import ceil
 from time import time
 
 from utils.agent import Agent
@@ -28,7 +29,7 @@ class AlphaSnakeZeroTrainer:
         new_generation = True
         if itr == 0:
             f = open("log.csv", 'w')
-            f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
+            f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length, new_max_chain_length\n')
             f.close()
         health_dec = 9
         while True:
@@ -43,6 +44,7 @@ class AlphaSnakeZeroTrainer:
             starvation = 0
             food_eaten = 0
             game_length = 0
+            new_max_chain_length = 0
             # for training, all agents uses the same nnet
             Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + itr)
             X = []
@@ -71,27 +73,26 @@ class AlphaSnakeZeroTrainer:
                         v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
                     else:
                         v[0][m[0]] = -1.0
-                    for j in range(1, len(x)):
-                        delta = max(v[j - 1]) - last_max
+                    for i in range(1, len(x)):
+                        delta = max(v[i - 1]) - last_max
                         if delta == 0.0:
                             break
-                        last_max = max(v[j])
-                        v[j][m[j]] += delta*p[j]
+                        last_max = max(v[i])
+                        v[i][m[i]] += delta*p[i]
                         # once the network is somewhat good this should never happen
-                        if v[j][m[j]] < -1.0:
-                            v[j][m[j]] = -1.0
-                        elif v[j][m[j]] > 1.0:
-                            v[j][m[j]] = 1.0
+                        if v[i][m[i]] < -1.0:
+                            v[i][m[i]] = -1.0
+                        elif v[i][m[i]] > 1.0:
+                            v[i][m[i]] = 1.0
                     # sampling
-                    sample_length = 8 if len(x) >= 8 else len(x)
-                    sample_x = x[:sample_length]
-                    sample_v = v[:sample_length]
-                    i = sample_length
+                    sample_x = x[:i]
+                    sample_v = v[:i]
+                    new_max_chain_length += i
                     # can result in an infinite loop if sample_length is too small
                     while i < len(x):
                         sample_x.append(x[i])
                         sample_v.append(v[i])
-                        i = round(1.1*i)
+                        i = ceil(1.5*i)
                     X += sample_x
                     V += sample_v
                     X += self.mirror_states(sample_x)
@@ -100,8 +101,9 @@ class AlphaSnakeZeroTrainer:
             if len(X) > 100000:
                 self.numEps //= 2
             if new_generation:
-                log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
+                log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length, new_max_chain_length]
                 log_array = array(log_list)/self.numEps
+                log_array[-1] /= self.snake_cnt
                 log = str(itr) + ', ' + ', '.join(map(str, log_array)) + '\n'
                 f = open("log.csv", 'a')
                 f.write(log)
