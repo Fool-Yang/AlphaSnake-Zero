@@ -73,7 +73,10 @@ class AlphaSnakeZeroTrainer:
                         v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
                     else:
                         v[0][m[0]] = -1.0
-                    for i in range(1, len(x)):
+                    i = 1
+                    while True:
+                        if i >= len(x):
+                            break
                         delta = max(v[i - 1]) - last_max
                         if delta == 0.0:
                             break
@@ -84,6 +87,7 @@ class AlphaSnakeZeroTrainer:
                             v[i][m[i]] = -1.0
                         elif v[i][m[i]] > 1.0:
                             v[i][m[i]] = 1.0
+                        i += 1
                     # sampling
                     sample_x = x[:i]
                     sample_v = v[:i]
