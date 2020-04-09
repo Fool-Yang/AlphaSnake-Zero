@@ -74,9 +74,7 @@ class AlphaSnakeZeroTrainer:
                     else:
                         v[0][m[0]] = -1.0
                     i = 1
-                    while True:
-                        if i >= len(x):
-                            break
+                    while i < len(x):
                         delta = max(v[i - 1]) - last_max
                         if delta == 0.0:
                             break
