@@ -46,7 +46,7 @@ class AlphaSnakeZeroTrainer:
             game_length = 0
             new_max_chain_length = 0
             # for training, all agents uses the same nnet
-            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=10 + itr)
+            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=100*(itr + 1)
             X = []
             V = []
             t0 = time()
