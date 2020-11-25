@@ -8,7 +8,7 @@ This is an undergrad course project at the University of Victoria. I (Yang Li) c
 Link to the presentation: https://drive.google.com/drive/folders/1Knb5xECKhTKK9vVSAutyHNOFClFaFf8o
 
 ## Demo
-![demo](./demo.gif =200x200)
+<img src="/demo.gif" width="250" height="250"/>
 
 ## Requirments:
 Python 3.7.6
