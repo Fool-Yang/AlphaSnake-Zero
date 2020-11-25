@@ -1,6 +1,9 @@
 # AlphaSnake-Zero
 A machine learning AI that learns to play the game BattleSnake
 
+## Abstract
+A lot of studies have been done on reinforcement learning recently. Q learning, orDQNtriestosolvethesingleagentvsenvironmentproblem,wheresomeother approaches such as AlphaGo attempt the double agent game. In this project, we try to ﬁnd an algorithm to generate an agent that performs well in a multiagent synchronous strategy game.
+
 For detailed descriptions, please check the report.pdf.
 
 This is an undergrad course project at the University of Victoria. I (Yang Li) contributed most of the work to it.
