@@ -9,7 +9,9 @@ Link to the presentation: https://drive.google.com/drive/folders/1Knb5xECKhTKK9v
 
 # Requirments:
 Python 3.7.6
+
 NumPy 1.18.1
+
 TensorFlow 2.1
 
 # Instructions:
