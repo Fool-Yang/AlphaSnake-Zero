@@ -3,12 +3,12 @@ A machine learning AI that learns to play the game BattleSnake
 
 This is an undergrad course project at the University of Victoria. I (Yang Li) contributed most of the work to it.
 
-Link to the presentation: https://drive.google.com/drive/folders/1Knb5xECKhTKK9vVSAutyHNOFClFaFf8o
-
 ## Abstract
 A lot of studies have been done on reinforcement learning recently. Q learning, or DQN tries to solve the single agent vs environment problem, where some other approaches such as AlphaGo attempt the double agent game. In this project, we try to find an algorithm to generate an agent that performs well in a multiagent synchronous strategy game. Although this project is specific to the game called Battlesnake, the method and algorithms we used is not limited to it. The math holds for any synchronous game that has a finite state and action space.
 
-For detailed descriptions, please check the report.pdf.
+For detailed descriptions, please check the report.pdf (https://github.com/Fool-Yang/AlphaSnake-Zero/blob/master/report.pdf).
+
+Link to the presentation: https://drive.google.com/drive/folders/1Knb5xECKhTKK9vVSAutyHNOFClFaFf8o
 
 ## Demo
 ![demo](./demo.gif)
