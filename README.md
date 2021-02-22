@@ -1,7 +1,7 @@
 # AlphaSnake-Zero
 A machine learning AI that learns to play the game BattleSnake
 
-This is an undergrad course project at the University of Victoria. I (Yang Li) contributed most of the work to it.
+This is an undergrad course project at the University of Victoria. I (Yang Li) contributed most of the work to it. Other members: Ahmed Siddiqui, Louis Kraack, Michail Roesli, Swapnil Daxini.
 
 ## Abstract
 A lot of studies have been done on reinforcement learning recently. Q learning, or DQN tries to solve the single agent vs environment problem, where some other approaches such as AlphaGo attempt the double agent game. In this project, we try to find an algorithm to generate an agent that performs well in a multiagent synchronous strategy game. Although this project is specific to the game called Battlesnake, the method and algorithms we used is not limited to it. The math holds for any synchronous game that has a finite state and action space.
