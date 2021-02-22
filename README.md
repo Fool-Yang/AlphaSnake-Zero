@@ -1,5 +1,5 @@
 # AlphaSnake-Zero
-A machine learning AI that learns to play the game BattleSnake
+A machine learning AI that learns to play the multi-agent synchronous strategy game Battlesnake based on the AlphaGo Zero’s algorithms.
 
 This is an undergrad course project at the University of Victoria. I (Yang Li) contributed most of the work to it. Other members: Ahmed Siddiqui, Louis Kraak, Michail Roesli, Swapnil Daxini.
 
