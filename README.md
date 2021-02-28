@@ -6,7 +6,11 @@ This is an undergrad course project at the University of Victoria. I (Yang Li) c
 ## Contents
 For detailed descriptions, please check the report.pdf (https://github.com/Fool-Yang/AlphaSnake-Zero/blob/master/report.pdf).
 
-Link to the presentation: https://drive.google.com/file/d/12Hr78S1oMO34BEdedrI0sOAhaIAdE3jO/view?usp=sharing
+
+<figure class="video_container">
+  <iframe src="https://drive.google.com/file/d/12Hr78S1oMO34BEdedrI0sOAhaIAdE3jO/preview" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
+
 
 ## Demo
 ![demo](./demo.gif)
