@@ -2,7 +2,7 @@
 Presentation:
 
 <figure class="video_container">
-  <iframe src="https://drive.google.com/file/d/12Hr78S1oMO34BEdedrI0sOAhaIAdE3jO/preview" width="640" height="480"></iframe>
+  <iframe src="https://drive.google.com/file/d/12Hr78S1oMO34BEdedrI0sOAhaIAdE3jO/preview" width="640" height="480" frameborder="0" allowfullscreen="true"></iframe>
 </figure>
 
 For detailed descriptions of the algorithms, please check the [report](https://github.com/Fool-Yang/AlphaSnake-Zero/blob/master/report.pdf).
