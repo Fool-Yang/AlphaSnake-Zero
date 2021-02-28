@@ -2,7 +2,6 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.models import Model, load_model, clone_model
 
-
 class AlphaNNet:
     
     def __init__(self, model = None, ins = None):

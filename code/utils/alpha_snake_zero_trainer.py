@@ -6,7 +6,6 @@ from utils.agent import Agent
 from utils.game import Game
 from utils.alphaNNet import AlphaNNet
 
-
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
@@ -134,7 +133,7 @@ class AlphaSnakeZeroTrainer:
         # need to return a list
         # otherwise X += does vector addition
         return list(flip(states, axis = 2))
-        
+    
     def mirror_values(self, values):
         return list(flip(values, axis = 1))
     

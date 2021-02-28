@@ -1,7 +1,6 @@
 from numpy import power, prod
 from numpy.random import choice
 
-
 class Agent:
     
     def __init__(self, nnet, snake_ids=None, training=False, greedy=None):

@@ -8,7 +8,6 @@ HUNGER_m = 0.01
 SNAKE_m = 0.02
 HEAD_m = 0.04
 
-
 class Game:
     
     def __init__(self, height, width, snake_cnt, health_dec = 1):
@@ -80,7 +79,7 @@ class Game:
             # ask for moves
             if Bob:
                 # to speed up the competing process
-                # the team with more snakes left wins
+                # the team with snakes left wins
                 if len(snake_ids1) == 0:
                     return sep
                 if len(snake_ids2) == 0:
