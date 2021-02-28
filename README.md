@@ -9,7 +9,7 @@ A lot of studies have been done on reinforcement learning recently. Q learning, 
 ## Contents
 For detailed descriptions, please check the report.pdf (https://github.com/Fool-Yang/AlphaSnake-Zero/blob/master/report.pdf).
 
-Link to the presentation: https://drive.google.com/drive/folders/1Knb5xECKhTKK9vVSAutyHNOFClFaFf8o
+Link to the presentation: https://drive.google.com/file/d/12Hr78S1oMO34BEdedrI0sOAhaIAdE3jO/view?usp=sharing
 
 ## Demo
 ![demo](./demo.gif)
