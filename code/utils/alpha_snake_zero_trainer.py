@@ -24,6 +24,7 @@ class AlphaSnakeZeroTrainer:
         self.snake_cnt = snake_cnt
     
     def train(self, nnet, name="nn", itr = 0):
+        new_nnet = nnet.copy(lr=0.0001)
         # log
         new_generation = True
         if itr == 0:
@@ -109,8 +110,7 @@ class AlphaSnakeZeroTrainer:
                 f.close()
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.0001)
-            new_nnet.train(array(X), array(V), ep=32, bs=4096)
+            new_nnet.train(array(X), array(V), ep=32, bs=2048)
             itr += 1
             print("Training time", time() - t0)
             t0 = time()
