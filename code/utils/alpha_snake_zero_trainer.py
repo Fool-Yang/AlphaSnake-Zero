@@ -28,7 +28,7 @@ class AlphaSnakeZeroTrainer:
         new_generation = True
         if itr == 0:
             f = open("log.csv", 'w')
-            f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length, new_max_chain_length\n')
+            f.write('wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
             f.close()
         health_dec = 9
         while True:
@@ -43,9 +43,8 @@ class AlphaSnakeZeroTrainer:
             starvation = 0
             food_eaten = 0
             game_length = 0
-            new_max_chain_length = 0
             # for training, all agents uses the same nnet
-            Alice = Agent(nnet, range(self.snake_cnt), training=True, greedy=100*(itr + 1)
+            Alice = Agent(nnet, range(self.snake_cnt), training=True, softmax_base=100 + itr)
             X = []
             V = []
             t0 = time()
@@ -67,32 +66,31 @@ class AlphaSnakeZeroTrainer:
                     m = Alice.moves[snake_id]
                     p = Alice.odds[snake_id]
                     # assign estimated values
-                    last_max = max(v[0])
+                    last_max = max(v[-1])
                     if snake_id == winner_id:
-                        v[0][m[0]] += (1.0 - v[0][m[0]])*p[0]
+                        v[-1][m[-1]] += (1.0 - v[-1][m[-1]])*p[-1]
                     else:
-                        v[0][m[0]] = -1.0
-                    i = 1
-                    while i < len(x):
-                        delta = max(v[i - 1]) - last_max
-                        if delta == 0.0:
-                            break
+                        v[-1][m[-1]] = 0.0
+                    delta = max(v[-1]) - last_max
+                    i = len(x) - 2
+                    while i >= 0 and delta != 0.0:
                         last_max = max(v[i])
                         v[i][m[i]] += delta*p[i]
                         # once the network is somewhat good this should never happen
-                        if v[i][m[i]] < -1.0:
-                            v[i][m[i]] = -1.0
+                        if v[i][m[i]] < 0.0:
+                            v[i][m[i]] = 0.0
                         elif v[i][m[i]] > 1.0:
                             v[i][m[i]] = 1.0
-                        i += 1
+                        delta = max(v[i]) - last_max
+                        i -= 1
                     # sampling
-                    sample_x = x[:i]
-                    sample_v = v[:i]
-                    new_max_chain_length += i
+                    sample_x = x[i + 1:]
+                    sample_v = v[i + 1:]
+                    i = len(sample_x) + 1
                     # can result in an infinite loop if sample_length is too small
-                    while i < len(x):
-                        sample_x.append(x[i])
-                        sample_v.append(v[i])
+                    while i <= len(x):
+                        sample_x.append(x[-i])
+                        sample_v.append(v[-i])
                         i = ceil(1.5*i)
                     X += sample_x
                     V += sample_v
@@ -102,7 +100,7 @@ class AlphaSnakeZeroTrainer:
             if len(X) > 100000:
                 self.numEps //= 2
             if new_generation:
-                log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length, new_max_chain_length]
+                log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
                 log_array = array(log_list)/self.numEps
                 log_array[-1] /= self.snake_cnt
                 log = str(itr) + ', ' + ', '.join(map(str, log_array)) + '\n'
