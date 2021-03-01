@@ -9,15 +9,15 @@ from utils.alphaNNet import AlphaNNet
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                numEps=1024,
-                competeEps=1024,
+                self_play_games=2500,
+                pit_games=400,
                 threshold=0.55,
                 height=11,
                 width=11,
                 snake_cnt=4):
         
-        self.numEps = numEps
-        self.competeEps = competeEps
+        self.self_play_games = self_play_games
+        self.pit_games = pit_games
         self.threshold = threshold
         self.height = height
         self.width = width
@@ -49,7 +49,7 @@ class AlphaSnakeZeroTrainer:
             V = []
             t0 = time()
             # the loop below can use distributed computing
-            for ep in range(self.numEps):
+            for ep in range(self.self_play_games):
                 # collect examples from a new game
                 g = Game(self.height, self.width, self.snake_cnt, health_dec)
                 winner_id = g.run(Alice)
@@ -68,7 +68,7 @@ class AlphaSnakeZeroTrainer:
                     # assign estimated values
                     last_max = max(v[-1])
                     if snake_id == winner_id:
-                        v[-1][m[-1]] += (1.0 - v[-1][m[-1]])*p[-1]
+                        v[-1][m[-1]] = (1.0 - v[-1][m[-1]])*p[-1]
                     else:
                         v[-1][m[-1]] = 0.0
                     delta = max(v[-1]) - last_max
@@ -98,10 +98,10 @@ class AlphaSnakeZeroTrainer:
                     V += self.mirror_values(sample_v)
                 Alice.clear()
             if len(X) > 100000:
-                self.numEps //= 2
+                self.self_play_games //= 2
             if new_generation:
                 log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
-                log_array = array(log_list)/self.numEps
+                log_array = array(log_list)/self.self_play_games
                 log_array[-1] /= self.snake_cnt
                 log = str(itr) + ', ' + ', '.join(map(str, log_array)) + '\n'
                 f = open("log.csv", 'a')
@@ -141,7 +141,7 @@ class AlphaSnakeZeroTrainer:
         Bob = Agent(old_net)
         win = 0.0
         loss = 0.0
-        for _ in range(self.competeEps):
+        for _ in range(self.pit_games):
             g = Game(self.height, self.width, self.snake_cnt)
             winner_id = g.run(Alice, Bob, sep=number_of_new_nets)
             if winner_id is None:
