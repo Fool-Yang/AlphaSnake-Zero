@@ -22,19 +22,19 @@ class Agent:
                 chance = prod([pmfs[i][moves[i]] for i in range(len(states))])
                 for i in range(len(states)):
                     # record the info for traininig
-                    self.records[snake_ids[i]].insert(0, states[i])
-                    self.values[snake_ids[i]].insert(0, V[i])
-                    self.moves[snake_ids[i]].insert(0, moves[i])
-                    self.odds[snake_ids[i]].insert(0, chance/pmfs[i][moves[i]])
+                    self.records[snake_ids[i]].append(states[i])
+                    self.values[snake_ids[i]].append(V[i])
+                    self.moves[snake_ids[i]].append(moves[i])
+                    self.odds[snake_ids[i]].append(chance/pmfs[i][moves[i]])
         else:
             moves = self.argmaxs(V)
             if self.training:
                 for i in range(len(states)):
                     # record the info for traininig
-                    self.records[snake_ids[i]].insert(0, states[i])
-                    self.values[snake_ids[i]].insert(0, V[i])
-                    self.moves[snake_ids[i]].insert(0, moves[i])
-                    self.odds[snake_ids[i]].insert(0, 1.0)
+                    self.records[snake_ids[i]].append(states[i])
+                    self.values[snake_ids[i]].append(V[i])
+                    self.moves[snake_ids[i]].append(moves[i])
+                    self.odds[snake_ids[i]].append(1.0)
         return moves
     
     # a softmax-like function that highlights the higher values even more
