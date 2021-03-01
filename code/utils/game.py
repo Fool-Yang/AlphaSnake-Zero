@@ -1,8 +1,8 @@
 from random import sample, choice, random
 from numpy import array, reshape, rot90
 
-WALL = -1.0
-MY_HEAD = 1.0
+WALL = 1.0
+MY_HEAD = -1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
@@ -33,15 +33,15 @@ class Game:
         
         self.snakes = [Snake(ID, 100, [positions[ID]] * 3) for ID in range(snake_cnt)]
         for snake in self.snakes:
-            self.empty_positions.remove(snake.body[0])
+            self.empty_positions.remove(snake.head.position)
         
         self.food = set(sample(self.empty_positions, snake_cnt))
         for food in self.food:
             self.empty_positions.remove(food)
         
         # two board sets are used to reduce run time
-        self.heads = {snake.body[0]: {snake} for snake in self.snakes}
-        self.bodies = {snake.body[i] for snake in self.snakes for i in range(1, len(snake.body))}
+        self.heads = {snake.head.position: {snake} for snake in self.snakes}
+        self.bodies = {body for snake in self.snakes for body in snake}
         
         # log
         self.wall_collision = 0
@@ -150,7 +150,7 @@ class Game:
             # this whole check through runs in O(n) time
             kills = set()
             for snake in snakes:
-                head = snake.body[0]
+                head = snake.head.position
                 # check for wall collisions
                 if head[0] < 0 or head[0] >= self.height or head[1] < 0 or head[1] >= self.width:
                     kills.add(snake)
@@ -162,7 +162,7 @@ class Game:
                 # check for head on collisions
                 elif len(self.heads[head]) > 1:
                     for s in self.heads[head]:
-                        if len(snake.body) <= len(s.body) and s != snake:
+                        if snake.length <= s.length and s != snake:
                             kills.add(snake)
                             self.head_collision += 1
                             break
@@ -173,7 +173,7 @@ class Game:
             # remove from snakes set
             for snake in kills:
                 # update board sets
-                head = snake.body[0]
+                head = snake.head.position
                 if len(self.heads[head]) == 1:
                     del self.heads[head]
                     # it might die due to starvation or equal-length head on collision
@@ -185,15 +185,14 @@ class Game:
                             self.empty_positions.add(head)
                 else:
                     self.heads[head].remove(snake)
-                for i in range(1, len(snake.body)):
-                    b = snake.body[i]
+                for body in snake:
                     # it is possible that a snake has eaten on its first move and then die on its second move
                     # in that case the snake will have a repeated tail
                     # removing it from bodies twice causes an error
                     # tried to debug this one for 5 hours and finally got it
                     try:
-                        self.bodies.remove(b)
-                        self.empty_positions.add(b)
+                        self.bodies.remove(body)
+                        self.empty_positions.add(body)
                     except KeyError:
                         pass
                 snakes.remove(snake)
@@ -207,8 +206,8 @@ class Game:
             
             # check for food eaten
             for snake in snakes:
-                if snake.body[0] in self.food:
-                    food = snake.body[0]
+                if snake.head.position in self.food:
+                    food = snake.head.position
                     self.food.remove(food)
                     snake.health = 100
                     snake.grow()
@@ -247,8 +246,8 @@ class Game:
         """
         
         # gotta do the math to recenter the grid
-        width = self.width * 2 + 1
-        height = self.height * 2 + 1
+        width = self.width * 2 - 1
+        height = self.height * 2 - 1
         grid = [[[0.0, WALL, 0.0] for col in range(width)] for row in range(height)]
         center_y = height//2
         center_x = width//2
@@ -259,26 +258,25 @@ class Game:
         # positions are (y, x) not (x, y)
         # because you read the grid row by row, i.e. (row number, column number)
         # otherwise the board is transposed
-        length_minus_half = len(you.body) - 0.5
+        length_minus_half = you.length - 0.5
         for snake in self.snakes:
-            body = snake.body
-            # get head
-            board[body[0][0]][body[0][1]][0] = (length_minus_half - len(body)) * HEAD_m
-            # get the rest of the body
-            dist = -1
-            # Don't do the body[-1:0:-1] slicing. It will copy the list
-            for i in range(len(body) - 1, 0, -1):
-                board[body[i][0]][body[i][1]][1] = dist * SNAKE_m
+            # get the head
+            board[snake.head.position[0]][snake.head.position[1]][0] = (snake.length - length_minus_half) * HEAD_m
+            # get the body
+            dist = snake.length
+            # the head is also counted as a body for the making of the state because it will be a body next turn
+            board[snake.head.position[0]][snake.head.position[1]][1] = dist * SNAKE_m
+            dist -= 1
+            for body in snake:
+                board[body[0]][body[1]][1] = dist * SNAKE_m
                 dist -= 1
         
         for food in self.food:
             board[food[0]][food[1]][2] = (101 - you.health) * HUNGER_m
         
-        # get my head
-        head_y, head_x = you.body[0]
-        board[head_y][head_x] = [MY_HEAD] * 3
-        
         # from this point, all positions are measured relative to our head
+        head_y, head_x = you.head.position
+        board[head_y][head_x] = [MY_HEAD, MY_HEAD, MY_HEAD]
         for y in range(self.height):
             for x in range(self.width):
                 grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]
@@ -295,14 +293,14 @@ class Game:
         for food in self.food:
             board[food[0]][food[1]] = 9
         
-        for snake in sorted(self.snakes, key = lambda s: len(s.body)):
+        for snake in sorted(self.snakes, key = lambda s: s.length):
             # head might go out of bound
-            head_y, head_x = snake.body[0]
+            head_y, head_x = snake.head.position
             if head_y >= 0 and head_y < self.height and head_x >= 0 and head_x < self.width:
-                board[snake.body[0][0]][snake.body[0][1]] = -(snake.id + 1)
+                board[snake.head.position[0]][snake.head.position[1]] = -(snake.id + 1)
         for snake in self.snakes:
-            for i in range(1, len(snake.body)):
-                board[snake.body[i][0]][snake.body[i][1]] = snake.id + 1
+            for body in snake:
+                board[body[0]][body[1]] = snake.id + 1
         
         f = open("replay.rep", 'a')
         for row in board:
@@ -310,39 +308,74 @@ class Game:
         f.write('\n')
         f.close()
 
-
 class Snake:
     
     def __init__(self, ID, health, body):
         self.id = ID
         self.health = health
-        self.body = body
+        self.length = len(body)
+        self.head = Node(body[0])
+        self.tail = self.head
+        for i in range(1, len(body)):
+            new_node = Node(body[i])
+            new_node.prev_node = self.tail
+            self.tail.next_node = new_node
+            self.tail = new_node
+    
+    # iterate through the body not including the head
+    def __iter__(self):
+        self.curr = self.head.next_node
+        return self
+    
+    def __next__(self):
+        if self.curr:
+            position = self.curr.position
+            self.curr = self.curr.next_node
+            return position
+        else:
+            raise StopIteration
     
     def move(self, direction):
-        body = self.body
         if direction == 0:   # up
-            y = body[0][0] - 1
-            x = body[0][1]
+            y = self.head.position[0] - 1
+            x = self.head.position[1]
         elif direction == 1: # right
-            y = body[0][0]
-            x = body[0][1] + 1
+            y = self.head.position[0]
+            x = self.head.position[1] + 1
         elif direction == 2: # down
-            y = body[0][0] + 1
-            x = body[0][1]
+            y = self.head.position[0] + 1
+            x = self.head.position[1]
         # if direction == 3: # left
         else:
-            y = body[0][0]
-            x = body[0][1] - 1
-        body.insert(0, (y, x))
-        tail = body.pop()
+            y = self.head.position[0]
+            x = self.head.position[1] - 1
+        new_head = Node((y, x))
+        new_head.next_node = self.head
+        self.head.prev_node = new_head
+        old_head = self.head
+        self.head = new_head
+        old_tail = self.tail
+        self.tail = self.tail.prev_node
+        self.tail.next_node = None
         
         # return the new head, the old head and the removed tail
         # tells the Game how to up date the board sets
         # don't remove the tail if it is on top of another body
-        if tail == self.body[-1]:
-            tail = None
+        if old_tail.position == self.tail.position:
+            old_tail.position = None
         
-        return (body[0], body[1], tail)
+        return (new_head.position, old_head.position, old_tail.position)
     
     def grow(self):
-        self.body.append(self.body[-1])
+        self.length += 1
+        new_tail = Node(self.tail.position)
+        new_tail.prev_node = self.tail
+        self.tail.next_node = new_tail
+        self.tail = new_tail
+
+class Node:
+    
+    def __init__(self, yx):
+        self.position = yx
+        self.prev_node = None
+        self.next_node = None
