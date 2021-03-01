@@ -11,7 +11,7 @@ class AlphaSnakeZeroTrainer:
     def __init__(self,
                 numEps=1024,
                 competeEps=1024,
-                threshold=0.27,
+                threshold=0.55,
                 height=11,
                 width=11,
                 snake_cnt=4):
@@ -111,7 +111,7 @@ class AlphaSnakeZeroTrainer:
                 f.close()
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet = nnet.copy(lr=0.0001*(0.97**itr))
+            new_nnet = nnet.copy(lr=0.0001)
             new_nnet.train(array(X), array(V), ep=32, bs=4096)
             itr += 1
             print("Training time", time() - t0)
@@ -137,20 +137,20 @@ class AlphaSnakeZeroTrainer:
     def mirror_values(self, values):
         return list(flip(values, axis = 1))
     
-    def compete(self, nnet1, nnet2):
-        sep = 1
-        Alice = Agent(nnet1)
-        Bob = Agent(nnet2)
-        win = 0
-        loss = 0
+    def compete(self, new_net, old_net):
+        number_of_new_nets = 2
+        Alice = Agent(new_net)
+        Bob = Agent(old_net)
+        win = 0.0
+        loss = 0.0
         for _ in range(self.competeEps):
             g = Game(self.height, self.width, self.snake_cnt)
-            winner_id = g.run(Alice, Bob, sep=sep)
+            winner_id = g.run(Alice, Bob, sep=number_of_new_nets)
             if winner_id is None:
-                win += 1
-                loss += 1
-            elif winner_id < sep:
-                win += 1
+                win += 0.5
+                loss += 0.5
+            elif winner_id < number_of_new_nets:
+                win += 1.0
             else:
-                loss += 1
+                loss += 1.0
         return win/(win + loss)
