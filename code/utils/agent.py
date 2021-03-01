@@ -3,10 +3,10 @@ from numpy.random import choice
 
 class Agent:
     
-    def __init__(self, nnet, snake_ids=None, training=False, greedy=None):
+    def __init__(self, nnet, snake_ids=None, training=False, softmax_base=None):
         self.nnet = nnet
         self.training = training
-        self.greedy = greedy
+        self.softmax_base = softmax_base
         if training:
             self.records = {i:[] for i in snake_ids}
             self.values = {i:[] for i in snake_ids}
@@ -15,7 +15,7 @@ class Agent:
     
     def make_moves(self, states, snake_ids=None):
         V = self.nnet.v(states)
-        if self.greedy:
+        if self.softmax_base:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p=pmf) for pmf in pmfs]
             if self.training:
@@ -40,7 +40,7 @@ class Agent:
     # a softmax-like function that highlights the higher values even more
     def softermax(self, z):
         # the higher the power base is, the more it highlights the higher ones
-        normalized = power(self.greedy, z)
+        normalized = power(self.softmax_base, z)
         return normalized/sum(normalized)
     
     def argmaxs(self, Z):
