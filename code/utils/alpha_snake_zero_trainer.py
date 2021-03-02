@@ -11,7 +11,7 @@ class AlphaSnakeZeroTrainer:
     def __init__(self,
                 self_play_games=2500,
                 pit_games=400,
-                threshold=0.55,
+                threshold=0.53,
                 height=11,
                 width=11,
                 snake_cnt=4):
@@ -24,7 +24,7 @@ class AlphaSnakeZeroTrainer:
         self.snake_cnt = snake_cnt
     
     def train(self, nnet, name="nn", itr = 0):
-        new_nnet = nnet.copy(lr=0.0001)
+        current_nnet = nnet.copy()
         # log
         new_generation = True
         if itr == 0:
@@ -45,7 +45,7 @@ class AlphaSnakeZeroTrainer:
             food_eaten = 0
             game_length = 0
             # for training, all agents uses the same nnet
-            Alice = Agent(nnet, range(self.snake_cnt), training=True, softmax_base=100 + itr)
+            Alice = Agent(current_nnet, range(self.snake_cnt), training=True, softmax_base=100 + itr)
             X = []
             V = []
             t0 = time()
@@ -69,7 +69,7 @@ class AlphaSnakeZeroTrainer:
                     # assign estimated values
                     last_max = max(v[-1])
                     if snake_id == winner_id:
-                        v[-1][m[-1]] = (1.0 - v[-1][m[-1]])*p[-1]
+                        v[-1][m[-1]] += (1.0 - v[-1][m[-1]])*p[-1]
                     else:
                         v[-1][m[-1]] = 0.0
                     delta = max(v[-1]) - last_max
@@ -98,8 +98,6 @@ class AlphaSnakeZeroTrainer:
                     X += self.mirror_states(sample_x)
                     V += self.mirror_values(sample_v)
                 Alice.clear()
-            if len(X) > 100000:
-                self.self_play_games //= 2
             if new_generation:
                 log_list = [wall_collision, body_collision, head_collision, starvation, food_eaten, game_length]
                 log_array = array(log_list)/self.self_play_games
@@ -110,16 +108,16 @@ class AlphaSnakeZeroTrainer:
                 f.close()
             print("Self play time", time() - t0)
             t0 = time()
-            new_nnet.train(array(X), array(V), ep=32, bs=2048)
+            current_nnet = current_nnet.copy()
+            current_nnet.train(array(X), array(V), ep=64, bs=2048)
             itr += 1
             print("Training time", time() - t0)
             t0 = time()
             # compare new net with previous net
-            score = self.compete(new_nnet, nnet)
+            score = self.compete(current_nnet, nnet)
             new_generation = score > self.threshold
             if new_generation:
-                # replace with new net
-                nnet = new_nnet
+                nnet = current_nnet
                 nnet.save(name + str(itr))
                 print("Iteration", itr, "beats the previouse version. score =", score, "\nIt is now the new champion!")
             else:
