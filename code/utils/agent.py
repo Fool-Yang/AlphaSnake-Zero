@@ -3,7 +3,7 @@ from numpy.random import choice
 
 class Agent:
     
-    def __init__(self, nnet, snake_ids=None, training=False, softmax_base=None):
+    def __init__(self, nnet, snake_ids = None, training = False, softmax_base = None):
         self.nnet = nnet
         self.training = training
         self.softmax_base = softmax_base
@@ -13,11 +13,11 @@ class Agent:
             self.moves = {i:[] for i in snake_ids}
             self.odds = {i:[] for i in snake_ids}
     
-    def make_moves(self, states, snake_ids=None):
+    def make_moves(self, states, snake_ids = None):
         V = self.nnet.v(states)
         if self.softmax_base:
             pmfs = [self.softermax(v) for v in V]
-            moves = [choice([0, 1, 2], p=pmf) for pmf in pmfs]
+            moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
             if self.training:
                 chance = prod([pmfs[i][moves[i]] for i in range(len(states))])
                 for i in range(len(states)):

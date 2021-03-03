@@ -1,14 +1,15 @@
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.models import Model, load_model, clone_model
+from numpy import array, float32
 
 class AlphaNNet:
     
-    def __init__(self, model = None, ins = None):
-        if model:
-            self.v_net = load_model(model)
-        elif ins:
-            X = Input(ins)
+    def __init__(self, model_name = None, input_shape = None):
+        if model_name:
+            self.v_net = load_model(model_name)
+        elif input_shape:
+            X = Input(input_shape)
             
             H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(X)))
             
@@ -36,25 +37,38 @@ class AlphaNNet:
             
             self.v_net = Model(inputs = X, outputs = Y)
     
-    def train(self, X, Y, ep = None, bs = None):
-        self.v_net.fit(X, Y, epochs = ep, batch_size = bs)
+    def train(self, X, Y, epochs = 128, batch_size = 2048):
+        self.v_net.fit(array(X, dtype = float32), array(Y, dtype = float32), epochs = epochs, batch_size = batch_size)
     
     def v(self, X):
         return self.v_net.predict(X)
     
-    def copy(self):
-        nnet_copy = AlphaNNet()
-        # value
-        nnet_copy.v_net = clone_model(self.v_net)
-        nnet_copy.v_net.build(self.v_net.layers[0].input_shape)
-        nnet_copy.v_net.set_weights(self.v_net.get_weights())
+    def copy_and_compile(self, TPU = None):
         boundaries = [20, 40]
         values = [0.0001, 0.00005, 0.00002]
-        lr = schedules.PiecewiseConstantDecay(boundaries, values)
-        nnet_copy.v_net.compile(
-            optimizer = Adam(learning_rate = lr),
-            loss = 'mean_squared_error'
-        )
+        if TPU:
+            with TPU.scope():
+                # value
+                nnet_copy = AlphaNNet()
+                nnet_copy.v_net = clone_model(self.v_net)
+                nnet_copy.v_net.build(self.v_net.layers[0].input_shape)
+                nnet_copy.v_net.set_weights(self.v_net.get_weights())
+                lr = schedules.PiecewiseConstantDecay(boundaries, values)
+                nnet_copy.v_net.compile(
+                    optimizer = Adam(learning_rate = lr),
+                    loss = 'mean_squared_error'
+                )
+        else:
+            # value
+            nnet_copy = AlphaNNet()
+            nnet_copy.v_net = clone_model(self.v_net)
+            nnet_copy.v_net.build(self.v_net.layers[0].input_shape)
+            nnet_copy.v_net.set_weights(self.v_net.get_weights())
+            lr = schedules.PiecewiseConstantDecay(boundaries, values)
+            nnet_copy.v_net.compile(
+                optimizer = Adam(learning_rate = lr),
+                loss = 'mean_squared_error'
+            )
         return nnet_copy
     
     def save(self, name):
