@@ -10,8 +10,8 @@ competeEps = 128
 
 file_name1 = input("\nEnter the model 1 name:\n")
 file_name2 = input("\nEnter the model 2 name:\n")
-nnet1 = AlphaNNet(model = "models/" + file_name1 + ".h5")
-nnet2 = AlphaNNet(model = "models/" + file_name2 + ".h5")
+nnet1 = AlphaNNet(model_name = "models/" + file_name1 + ".h5")
+nnet2 = AlphaNNet(model_name = "models/" + file_name2 + ".h5")
 Alice = Agent(nnet1)
 Bob = Agent(nnet2)
 

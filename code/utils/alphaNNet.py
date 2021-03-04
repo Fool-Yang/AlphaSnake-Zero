@@ -11,26 +11,36 @@ class AlphaNNet:
         elif input_shape:
             X = Input(input_shape)
             
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(X)))
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(X)))
             
-            H_shortcut = Cropping2D(cropping=2)(H)
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
-            H_shortcut = Cropping2D(cropping=2)(H)
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
-            H_shortcut = Cropping2D(cropping=2)(H)
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
-            H_shortcut = Cropping2D(cropping=2)(H)
-            H = Activation('relu')(BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H)))
-            H = BatchNormalization(axis=3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
+            H = Activation('relu')(Add()([H, H_shortcut]))
+            
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
+            H = Activation('relu')(Add()([H, H_shortcut]))
+            
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias=False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             Y = Activation('sigmoid')(Dense(3)(Flatten()(H)))
@@ -44,8 +54,8 @@ class AlphaNNet:
         return self.v_net.predict(X)
     
     def copy_and_compile(self, TPU = None):
-        boundaries = [20, 40]
-        values = [0.0001, 0.00005, 0.00002]
+        boundaries = [20, 40, 60, 80, 100]
+        values = [0.0001, 0.00005, 0.00002, 0.00001, 0.000005, 0.000002]
         if TPU:
             with TPU.scope():
                 # value

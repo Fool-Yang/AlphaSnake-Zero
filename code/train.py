@@ -6,7 +6,8 @@ try:
     # when running on Google Cloud
     # the TPU must be located in the same area as the CPU
     # pass the TPU's name
-    Resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu = "node")
+    tpu_name = input("Enter the name of the Google Cloud TPU (Leave empty if not using a TPU):\n")
+    Resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu = tpu_name)
     tf.config.experimental_connect_to_cluster(Resolver)
     tf.tpu.experimental.initialize_tpu_system(Resolver)
     TPU = tf.distribute.experimental.TPUStrategy(Resolver)
@@ -14,7 +15,7 @@ except:
     print("Cannot find the Google Cloud TPU. Using CPUs")
     TPU = None
 
-name = input("Enter the model name (not including the generation number):\n")
+name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 start = int(input("Enter the starting iteration (0 for creating a new model):\n"))
 if start == 0:
     ANNet = AlphaNNet(input_shape = (21, 21, 3))

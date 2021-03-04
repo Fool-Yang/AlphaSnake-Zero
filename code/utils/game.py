@@ -57,7 +57,8 @@ class Game:
     # they have defferent algorithms, resulting in different rules
     # https://github.com/BattlesnakeOfficial/engine/blob/master/rules/tick.go
     # I am using the online version (first one)
-    def run(self, Alice, Bob=None, sep=None, show=False):
+    # Alice and Bob are the agents playing the game
+    def run(self, Alice, Bob = None, sep = None, show = False):
         if Bob:
             snake_ids1 = list(range(sep))
             snake_ids2 = list(range(sep, self.snake_cnt))
@@ -263,13 +264,14 @@ class Game:
             # get the head
             board[snake.head.position[0]][snake.head.position[1]][0] = (snake.length - length_minus_half) * HEAD_m
             # get the body
-            dist = snake.length
             # the head is also counted as a body for the making of the state because it will be a body next turn
-            board[snake.head.position[0]][snake.head.position[1]][1] = dist * SNAKE_m
-            dist -= 1
-            for body in snake:
-                board[body[0]][body[1]][1] = dist * SNAKE_m
-                dist -= 1
+            # going backwards because there could be a repeated tail when snake eats food
+            body = snake.tail
+            dist = 1
+            while body:
+                board[body.position[0]][body.position[1]][1] = dist * SNAKE_m
+                body = body.prev_node
+                dist += 1
         
         for food in self.food:
             board[food[0]][food[1]][2] = (101 - you.health) * HUNGER_m
@@ -310,19 +312,19 @@ class Game:
 
 class Snake:
     
-    def __init__(self, ID, health, body):
+    def __init__(self, ID, health, head_and_body):
         self.id = ID
         self.health = health
-        self.length = len(body)
-        self.head = Node(body[0])
+        self.length = len(head_and_body)
+        self.head = Node(head_and_body[0])
         self.tail = self.head
-        for i in range(1, len(body)):
-            new_node = Node(body[i])
+        for i in range(1, len(head_and_body)):
+            new_node = Node(head_and_body[i])
             new_node.prev_node = self.tail
             self.tail.next_node = new_node
             self.tail = new_node
     
-    # iterate through the body not including the head
+    # iterate through the body's position (not including the head)
     def __iter__(self):
         self.curr = self.head.next_node
         return self

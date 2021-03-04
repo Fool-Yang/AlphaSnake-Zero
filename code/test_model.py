@@ -9,7 +9,7 @@ snake_cnt = 4
 competeEps = 3
 
 file_name = input("\nEnter the model name:\n")
-net = AlphaNNet(model = "models/" + file_name + ".h5")
+net = AlphaNNet(model_name = "models/" + file_name + ".h5")
 net.v_net.summary()
 agent = Agent(net)
 

@@ -10,23 +10,18 @@ class AlphaSnakeZeroTrainer:
     
     def __init__(self,
                  self_play_games = 1024,
-                 pit_games = 128,
-                 threshold = 0.53,
                  height = 11,
                  width = 11,
                  snake_cnt = 4,
                  TPU = None):
         
         self.self_play_games = self_play_games
-        self.pit_games = pit_games
-        self.threshold = threshold
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
         self.TPU = TPU
     
     def train(self, nnet, name = "AlphaSnake", iteration = 0):
-        current_nnet = nnet.copy_and_compile()
         # log
         new_generation = True
         if iteration == 0:
@@ -46,8 +41,8 @@ class AlphaSnakeZeroTrainer:
             starvation = 0
             food_eaten = 0
             game_length = 0
-            # for training, all agents uses the same nnet
-            Alice = Agent(current_nnet, range(self.snake_cnt), training = True, softmax_base = 100 + 2*iteration)
+            # for training, all snakes are played by the same agent
+            Alice = Agent(nnet, range(self.snake_cnt), training = True, softmax_base = 100 + 2*iteration)
             X = []
             V = []
             t0 = time()
@@ -100,6 +95,7 @@ class AlphaSnakeZeroTrainer:
                     X += self.mirror_states(sample_x)
                     V += self.mirror_values(sample_v)
                 Alice.clear()
+            print("Self play time", time() - t0)
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
             if new_generation:
@@ -113,24 +109,13 @@ class AlphaSnakeZeroTrainer:
                 f = open("log.csv", 'a')
                 f.write(log)
                 f.close()
-            print("Self play time", time() - t0)
+            nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
-            current_nnet = current_nnet.copy_and_compile(TPU = self.TPU)
-            current_nnet.train(X, V)
-            current_nnet = current_nnet.copy_and_compile()
-            iteration += 1
+            nnet.train(X, V)
             print("Training time", time() - t0)
-            t0 = time()
-            # compare new net with previous net
-            score = self.compete(current_nnet, nnet)
-            new_generation = score > self.threshold
-            if new_generation:
-                nnet = current_nnet
-                nnet.save(name + str(iteration))
-                print("Iteration", iteration, "beats the previouse version. score =", score, "\nIt is now the new champion!")
-            else:
-                print("Iteration", iteration, "failed to beat the previouse one. score =", score)
-            print("Competing time", time() - t0, "\n")
+            nnet = nnet.copy_and_compile()
+            iteration += 1
+            nnet.save(name + str(iteration))
     
     def mirror_states(self, states):
         # flip return a numpy.ndarray
@@ -140,21 +125,3 @@ class AlphaSnakeZeroTrainer:
     
     def mirror_values(self, values):
         return list(flip(values, axis = 1))
-    
-    def compete(self, new_net, old_net):
-        number_of_new_nets = 2
-        Alice = Agent(new_net)
-        Bob = Agent(old_net)
-        win = 0.0
-        loss = 0.0
-        for _ in range(self.pit_games):
-            g = Game(self.height, self.width, self.snake_cnt)
-            winner_id = g.run(Alice, Bob, sep=number_of_new_nets)
-            if winner_id is None:
-                win += 0.5
-                loss += 0.5
-            elif winner_id < number_of_new_nets:
-                win += 1.0
-            else:
-                loss += 1.0
-        return win/(win + loss)
