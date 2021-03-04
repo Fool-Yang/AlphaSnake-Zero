@@ -2,7 +2,7 @@ from utils.agent import Agent
 from utils.game import Game
 from utils.alphaNNet import AlphaNNet
 
-from time import time
+from time import time, sleep
 
 pit_games = 400
 threshold = 0.53
@@ -50,4 +50,4 @@ while True:
         print("Competing time", time() - t0, "\n")
         iteration += 1
     except OSError:
-        pass
+        sleep(10)
