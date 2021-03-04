@@ -17,11 +17,7 @@ NumPy 1.18.1
 
 TensorFlow 2.1.0
 
-Keras 2.3.1
-
 ## Instructions:
-The training and pit are run concurrently.
-
 Run train.py to start training models. If you enter a starting iteration number greater than 0, it will try to start using the existing model (e.g. if you enter the model name "MySnake", and generation number "7", it will try to open the file "MySnake7.h5" in the "models" folder and start training). Otherwise it will create a new model and start training. All models will be stored in the "models" folder as .h5 files.
 
 Run pit.py to see competition results between different generations. If a generation beats the last champion it will become the new champion. Since now the algorithm is shifted to the AlphaZero's algorithm, the pit phase is no longer part of the training. You don't have to run pit.py. It only gives you information about the training results. The list of champions will be stored in the "champions.csv".
