@@ -13,12 +13,16 @@ snake_cnt = 4
 
 model_name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 iteration = int(input("Enter the starting iteration:\n"))
-nnet = AlphaNNet(model = "models/" + model_name + str(iteration) + ".h5")
+nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
 Alice = Agent(nnet)
+f = open("champions.csv", 'w')
+f.write("Model name, Score against the previous champion\n")
+f.write(model_name + str(iteration) + ", N/A\n")
+f.close()
 iteration += 1
 while True:
     try:
-        nnet = AlphaNNet(model = "models/" + model_name + str(iteration) + ".h5")
+        nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
         Bob = Agent(nnet)
         # compare new net with previous net
         win = 0.0
@@ -38,9 +42,12 @@ while True:
         if score > threshold:
             Alice = Bob
             print("Iteration", iteration, "beats the previouse version. score =", score, "\nIt is now the new champion!")
+            f = open("champions.csv", 'a')
+            f.write(model_name + str(iteration) + ", " + str(score) + '\n')
+            f.close()
         else:
             print("Iteration", iteration, "failed to beat the previouse one. score =", score)
         print("Competing time", time() - t0, "\n")
         iteration += 1
-    except FileNotFoundError:
+    except OSError:
         pass

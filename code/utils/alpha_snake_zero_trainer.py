@@ -26,7 +26,7 @@ class AlphaSnakeZeroTrainer:
         new_generation = True
         if iteration == 0:
             f = open("log.csv", 'w')
-            f.write('iteration, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n')
+            f.write("iteration, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n")
             f.close()
         health_dec = 9
         while True:
