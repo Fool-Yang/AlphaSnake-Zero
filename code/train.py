@@ -12,7 +12,7 @@ try:
     tf.tpu.experimental.initialize_tpu_system(Resolver)
     TPU = tf.distribute.experimental.TPUStrategy(Resolver)
 except:
-    print("Cannot find the Google Cloud TPU. Using CPUs")
+    print("Cannot find the Google Cloud TPU. Using the CPU.")
     TPU = None
 
 name = input("Enter the model name (not including the generation number nor \".h5\"):\n")

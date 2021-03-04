@@ -23,7 +23,6 @@ class AlphaSnakeZeroTrainer:
     
     def train(self, nnet, name = "AlphaSnake", iteration = 0):
         # log
-        new_generation = True
         if iteration == 0:
             f = open("log.csv", 'w')
             f.write("iteration, wall_collision, body_collision, head_collision, starvation, food_eaten, game_length\n")
@@ -98,21 +97,22 @@ class AlphaSnakeZeroTrainer:
             print("Self play time", time() - t0)
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
-            if new_generation:
-                log_list = [wall_collision/self.self_play_games,
-                            body_collision/self.self_play_games,
-                            head_collision/self.self_play_games,
-                            starvation/self.self_play_games,
-                            food_eaten/self.self_play_games,
-                            game_length/self.self_play_games]
-                log = str(iteration) + ', ' + ', '.join(map(str, log_list)) + '\n'
-                f = open("log.csv", 'a')
-                f.write(log)
-                f.close()
+            log_list = [wall_collision/self.self_play_games,
+                        body_collision/self.self_play_games,
+                        head_collision/self.self_play_games,
+                        starvation/self.self_play_games,
+                        food_eaten/self.self_play_games,
+                        game_length/self.self_play_games]
+            log = str(iteration) + ', ' + ', '.join(map(str, log_list)) + '\n'
+            f = open("log.csv", 'a')
+            f.write(log)
+            f.close()
+            # training
             nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
             nnet.train(X, V)
             print("Training time", time() - t0)
+            # save the model
             nnet = nnet.copy_and_compile()
             iteration += 1
             nnet.save(name + str(iteration))
