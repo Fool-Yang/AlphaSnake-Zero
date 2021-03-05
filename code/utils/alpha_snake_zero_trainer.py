@@ -1,3 +1,4 @@
+from math import ceil
 from numpy import flip
 from time import time
 
@@ -52,6 +53,8 @@ class AlphaSnakeZeroTrainer:
                     # assign estimated values
                     delta = 0.8
                     gamma = delta
+                    sample_delta = 1.3
+                    sample_index = 1
                     if snake_id == winner_ids[game_id]:
                         last_max = 1.0
                         for i in range(len(x) - 1, -1, -1):
@@ -63,6 +66,11 @@ class AlphaSnakeZeroTrainer:
                                     v[i][j] += (1.0 - v[i][j])*gamma
                             last_max = max(v[i])
                             gamma *= delta
+                            # sampling to avoid memory overflow
+                            if len(x) - i == sample_index:
+                                X.append(x[i])
+                                V.append(v[i])
+                                sample_index = ceil(sample_index*sample_delta)
                     else:
                         last_max = 0.0
                         for i in range(len(x) - 1, -1, -1):
@@ -74,12 +82,18 @@ class AlphaSnakeZeroTrainer:
                                     v[i][j] -= v[i][j]*gamma
                             last_max = max(v[i])
                             gamma *= delta
-                    X += x
-                    V += v
-                    X += self.mirror_states(x)
-                    V += self.mirror_values(v)
+                            # sampling to avoid memory overflow
+                            if len(x) - i == sample_index:
+                                X.append(x[i])
+                                V.append(v[i])
+                                sample_index = ceil(sample_index*sample_delta)
+                    # do this if not using the sampling method
+                    # X += x
+                    # V += v
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
+            X += self.mirror_states(X)
+            V += self.mirror_values(V)
             # training
             nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
