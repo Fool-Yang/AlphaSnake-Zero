@@ -1,5 +1,5 @@
 from random import sample, choice, random
-from numpy import array, reshape, rot90
+from numpy import array, rot90
 
 WALL = 1.0
 MY_HEAD = -1.0
@@ -10,26 +10,27 @@ HEAD_m = 0.04
 
 class Game:
     
-    def __init__(self, height, width, snake_cnt, health_dec = 1):
+    def __init__(self, ID, height = 11, width = 11, snake_cnt = 4, health_dec = 1):
+        self.id = ID
+        self.height = height
+        self.width = width
+        self.snake_cnt = snake_cnt
+        self.health_dec = health_dec
         
         # standard starting board positions (in order) for 7x7, 11x11, and 19x19
         # battlesnake uses random positions for any non-standard board size
         # https://github.com/BattlesnakeOfficial/engine/blob/master/rules/create.go
         positions = sample(
-            [
+            (
                 (1, 1), (height - 2, width - 2), (height - 2, 1), (1, width - 2),
                 (1, width//2), (height//2, width - 2), (height - 2, width//2), (height//2, 1)
-            ],
+            ),
             snake_cnt)
+        self.last_moves = {i: choice((0, 1, 2, 3)) for i in range(snake_cnt)}
         
         # I changed the data structure to speed up the game
         # empty_positions is used to generate food randomly
         self.empty_positions = {(y, x) for y in range(height) for x in range(width)}
-        
-        self.height = height
-        self.width = width
-        self.snake_cnt = snake_cnt
-        self.health_dec = health_dec
         
         self.snakes = [Snake(ID, 100, [positions[ID]] * 3) for ID in range(snake_cnt)]
         for snake in self.snakes:
@@ -51,188 +52,134 @@ class Game:
         self.food_eaten = 0
         self.game_length = 0
     
-    # game rules
-    # https://github.com/BattlesnakeOfficial/rules/blob/master/standard.go
-    # this link below is what they use for the engine
-    # they have defferent algorithms, resulting in different rules
-    # https://github.com/BattlesnakeOfficial/engine/blob/master/rules/tick.go
-    # I am using the online version (first one)
-    # Alice and Bob are the agents playing the game
-    def run(self, Alice, Bob = None, sep = None, show = False):
-        if Bob:
-            snake_ids1 = list(range(sep))
-            snake_ids2 = list(range(sep, self.snake_cnt))
-            last_moves1 = {i: choice((0, 1, 2, 3)) for i in range(sep)}
-            last_moves2 = {i: choice((0, 1, 2, 3)) for i in range(sep, self.snake_cnt)}
-        else:
-            snake_ids = list(range(self.snake_cnt))
-            last_moves = {i: choice((0, 1, 2, 3)) for i in range(self.snake_cnt)}
-        
-        if show:
-            self.draw()
-        
+    def get_states_and_ids(self):
+        states = [self.make_state(snake, self.last_moves[snake.id]) for snake in self.snakes]
+        ids = [(self.id, snake.id) for snake in self.snakes]
+        return (states, ids)
+    
+    def tic(self, moves, show = False):
         snakes = self.snakes
-        # game procedures
-        while len(snakes) > 1:
-            
-            self.game_length += 1
-            
-            # ask for moves
-            if Bob:
-                # to speed up the competing process
-                # the team with snakes left wins
-                if len(snake_ids1) == 0:
-                    return sep
-                if len(snake_ids2) == 0:
-                    return 0
-                states_list1 = [self.make_state(snake, last_moves1[snake.id]) for snake in snakes if snake.id < sep]
-                states1 = reshape(states_list1, (-1, len(states_list1[0]), len(states_list1[0][0]), 3))
-                states_list2 = [self.make_state(snake, last_moves2[snake.id]) for snake in snakes if snake.id >= sep]
-                states2 = reshape(states_list2, (-1, len(states_list2[0]), len(states_list2[0][0]), 3))
-                moves1 = Alice.make_moves(states1, snake_ids1)
-                moves2 = Bob.make_moves(states2, snake_ids2)
-                i = 0
-                j = 0
+        # execute moves
+        for i in range(len(snakes)):
+            snake = snakes[i]
+            move = (moves[i] + self.last_moves[snake.id] - 1) % 4
+            self.last_moves[snake.id] = move
+            # make the move
+            new_head, old_head, tail = snake.move(move)
+            # update board sets
+            try:
+                # several heads might come to the same cell
+                self.heads[new_head].add(snake)
+            except KeyError:
+                self.heads[new_head] = {snake}
+                # if it goes into an empty cell
+                if new_head in self.empty_positions:
+                    self.empty_positions.remove(new_head)
+            if len(self.heads[old_head]) == 1:
+                del self.heads[old_head]
             else:
-                states_list = [self.make_state(snake, last_moves[snake.id]) for snake in snakes]
-                states = reshape(states_list, (-1, len(states_list[0]), len(states_list[0][0]), 3))
-                # moves are relative to last move: turn left, go straight, or turn right
-                moves = Alice.make_moves(states, snake_ids)
-                i = 0
-            
-            # execute moves
-            for snake in snakes:
-                if Bob:
-                    if snake.id < sep:
-                        move = (moves1[i] + last_moves1[snake.id] - 1) % 4
-                        last_moves1[snake.id] = move
-                        i += 1
-                    else:
-                        move = (moves2[j] + last_moves2[snake.id] - 1) % 4
-                        last_moves2[snake.id] = move
-                        j += 1
-                else:
-                    move = (moves[i] + last_moves[snake.id] - 1) % 4
-                    last_moves[snake.id] = move
-                    i += 1
-                # make the move
-                new_head, old_head, tail = snake.move(move)
-                # update board sets
-                try:
-                    # several heads might come to the same cell
-                    self.heads[new_head].add(snake)
-                except KeyError:
-                    self.heads[new_head] = {snake}
-                    # if it goes into an empty cell
-                    if new_head in self.empty_positions:
-                        self.empty_positions.remove(new_head)
-                if len(self.heads[old_head]) == 1:
-                    del self.heads[old_head]
-                else:
-                    self.heads[old_head].remove(snake)
-                self.bodies.add(old_head)
-                if tail:
-                    self.bodies.remove(tail)
-                    # no one enters this cell
-                    if tail not in self.heads:
-                        self.empty_positions.add(tail)
-            
-            if show:
-                self.draw()
-            
-            # reduce health
-            for snake in snakes:
-                snake.health -= self.health_dec
-            
-            # remove dead snakes
-            # I have checked the code of the battlesnake game
-            # their algorithm for checking collisions is shit
-            # they run a nested for loop for every snake
-            # this whole check through runs in O(n) time
-            kills = set()
-            for snake in snakes:
-                head = snake.head.position
-                # check for wall collisions
-                if head[0] < 0 or head[0] >= self.height or head[1] < 0 or head[1] >= self.width:
-                    kills.add(snake)
-                    self.wall_collision += 1
-                # check for body collisions
-                elif head in self.bodies:
-                    kills.add(snake)
-                    self.body_collision += 1
-                # check for head on collisions
-                elif len(self.heads[head]) > 1:
-                    for s in self.heads[head]:
-                        if snake.length <= s.length and s != snake:
-                            kills.add(snake)
-                            self.head_collision += 1
-                            break
-                # check for starvation
-                elif snake.health <= 0:
-                    kills.add(snake)
-                    self.starvation += 1
-            # remove from snakes set
-            for snake in kills:
-                # update board sets
-                head = snake.head.position
-                if len(self.heads[head]) == 1:
-                    del self.heads[head]
-                    # it might die due to starvation or equal-length head on collision
-                    # only in those two cases, the head position should become an empty space
-                    # not out of bound and not into a body and not into a food
-                    if head[0] >= 0 and head[0] < self.height and head[1] >= 0 and head[1] < self.width:
-                        # head is in range
-                        if head not in self.bodies and head not in self.food:
-                            self.empty_positions.add(head)
-                else:
-                    self.heads[head].remove(snake)
-                for body in snake:
-                    # it is possible that a snake has eaten on its first move and then die on its second move
-                    # in that case the snake will have a repeated tail
-                    # removing it from bodies twice causes an error
-                    # tried to debug this one for 5 hours and finally got it
-                    try:
-                        self.bodies.remove(body)
-                        self.empty_positions.add(body)
-                    except KeyError:
-                        pass
-                snakes.remove(snake)
-                if Bob:
-                    if snake.id < sep:
-                        snake_ids1.remove(snake.id)
-                    else:
-                        snake_ids2.remove(snake.id)
-                else:
-                    snake_ids.remove(snake.id)
-            
-            # check for food eaten
-            for snake in snakes:
-                if snake.head.position in self.food:
-                    food = snake.head.position
-                    self.food.remove(food)
-                    snake.health = 100
-                    snake.grow()
-                    self.food_eaten += 1
-            
-            # spawn food
-            if len(self.food) == 0:
-                chance = 1.0
-            else:
-                chance = 0.15
-            if random() <= chance:
-                try:
-                    food = choice(tuple(self.empty_positions))
-                    self.food.add(food)
-                    self.empty_positions.remove(food)
-                except IndexError:
-                    # Cannot choose from an empty set
-                    pass
+                self.heads[old_head].remove(snake)
+            self.bodies.add(old_head)
+            if tail:
+                self.bodies.remove(tail)
+                # no one enters this cell
+                if tail not in self.heads:
+                    self.empty_positions.add(tail)
         
         if show:
             self.draw()
         
+        # reduce health
+        for snake in snakes:
+            snake.health -= self.health_dec
+        
+        # remove dead snakes
+        # I have checked the code of the battlesnake game
+        # their algorithm for checking collisions is shit
+        # they run a nested for loop for every snake
+        # this whole check through runs in O(n) time
+        kills = set()
+        for snake in snakes:
+            head = snake.head.position
+            # check for wall collisions
+            if head[0] < 0 or head[0] >= self.height or head[1] < 0 or head[1] >= self.width:
+                kills.add(snake)
+                self.wall_collision += 1
+            # check for body collisions
+            elif head in self.bodies:
+                kills.add(snake)
+                self.body_collision += 1
+            # check for head on collisions
+            elif len(self.heads[head]) > 1:
+                for s in self.heads[head]:
+                    if snake.length <= s.length and s != snake:
+                        kills.add(snake)
+                        self.head_collision += 1
+                        break
+            # check for starvation
+            elif snake.health <= 0:
+                kills.add(snake)
+                self.starvation += 1
+        # remove from snakes set
+        for snake in kills:
+            # update board sets
+            head = snake.head.position
+            if len(self.heads[head]) == 1:
+                del self.heads[head]
+                # it might die due to starvation or equal-length head on collision
+                # only in those two cases, the head position should become an empty space
+                # not out of bound and not into a body and not into a food
+                if head[0] >= 0 and head[0] < self.height and head[1] >= 0 and head[1] < self.width:
+                    # head is in range
+                    if head not in self.bodies and head not in self.food:
+                        self.empty_positions.add(head)
+            else:
+                self.heads[head].remove(snake)
+            for body in snake:
+                # it is possible that a snake has eaten on its first move and then die on its second move
+                # in that case the snake will have a repeated tail
+                # removing it from bodies twice causes an error
+                # tried to debug this one for 5 hours and finally got it
+                try:
+                    self.bodies.remove(body)
+                    self.empty_positions.add(body)
+                except KeyError:
+                    pass
+            snakes.remove(snake)
+        
+        # check for food eaten
+        for snake in snakes:
+            if snake.head.position in self.food:
+                food = snake.head.position
+                self.food.remove(food)
+                snake.health = 100
+                snake.grow()
+                self.food_eaten += 1
+        
+        # spawn food
+        if len(self.food) == 0:
+            chance = 1.0
+        else:
+            chance = 0.15
+        if random() <= chance:
+            try:
+                food = choice(tuple(self.empty_positions))
+                self.food.add(food)
+                self.empty_positions.remove(food)
+            except IndexError:
+                # Cannot choose from an empty set
+                pass
+        
+        if show:
+            self.draw()
+        
+        self.game_length += 1
         # return the winner if there is one
-        return tuple(snakes)[0].id if snakes else None
+        if len(snakes) <= 1:
+            return snakes[0].id if snakes else None
+        # return -1 if the game continues
+        else:
+            return -1
     
     def make_state(self, you, last_move):
         """ Process the data and translate them into a grid

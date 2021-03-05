@@ -1,40 +1,35 @@
-from numpy import power, prod
+from numpy import power, array
 from numpy.random import choice
 
 class Agent:
     
-    def __init__(self, nnet, snake_ids = None, training = False, softmax_base = None):
+    def __init__(self, nnet, softmax_base = None, training = False, game_and_snake_cnt = None):
         self.nnet = nnet
-        self.training = training
         self.softmax_base = softmax_base
+        self.training = training
+        self.game_and_snake_cnt = game_and_snake_cnt
         if training:
-            self.records = {i:[] for i in snake_ids}
-            self.values = {i:[] for i in snake_ids}
-            self.moves = {i:[] for i in snake_ids}
-            self.odds = {i:[] for i in snake_ids}
+            game_cnt = game_and_snake_cnt[0]
+            snake_cnt = game_and_snake_cnt[1]
+            self.records = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
+            self.values = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
+            self.moves = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
     
-    def make_moves(self, states, snake_ids = None):
-        V = self.nnet.v(states)
+    def make_moves(self, states, ids = None):
+        V = self.nnet.v(array(states))
         if self.softmax_base:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
-            if self.training:
-                chance = prod([pmfs[i][moves[i]] for i in range(len(states))])
-                for i in range(len(states)):
-                    # record the info for traininig
-                    self.records[snake_ids[i]].append(states[i])
-                    self.values[snake_ids[i]].append(V[i])
-                    self.moves[snake_ids[i]].append(moves[i])
-                    self.odds[snake_ids[i]].append(chance/pmfs[i][moves[i]])
         else:
             moves = self.argmaxs(V)
-            if self.training:
-                for i in range(len(states)):
-                    # record the info for traininig
-                    self.records[snake_ids[i]].append(states[i])
-                    self.values[snake_ids[i]].append(V[i])
-                    self.moves[snake_ids[i]].append(moves[i])
-                    self.odds[snake_ids[i]].append(1.0)
+        if self.training:
+            for i in range(len(states)):
+                # record the info for traininig
+                game_id = ids[i][0]
+                snake_id = ids[i][1]
+                self.records[game_id][snake_id].append(states[i])
+                self.values[game_id][snake_id].append(V[i])
+                self.moves[game_id][snake_id].append(moves[i])
         return moves
     
     # a softmax-like function that highlights the higher values even more
@@ -57,10 +52,3 @@ class Agent:
                 else:
                     argmaxs[i] = 2
         return argmaxs
-    
-    def clear(self):
-        for i in self.records:
-            self.records[i] = []
-            self.values[i] = []
-            self.moves[i] = []
-            self.odds[i] = []
