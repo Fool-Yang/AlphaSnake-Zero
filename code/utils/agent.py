@@ -7,6 +7,7 @@ class Agent:
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.training = training
+        self.game_and_snake_cnt = game_and_snake_cnt
         if training:
             game_cnt = game_and_snake_cnt[0]
             snake_cnt = game_and_snake_cnt[1]
@@ -51,10 +52,3 @@ class Agent:
                 else:
                     argmaxs[i] = 2
         return argmaxs
-    
-    def clear(self):
-        for i in self.records:
-            self.records[i] = []
-            self.values[i] = []
-            self.moves[i] = []
-            self.odds[i] = []

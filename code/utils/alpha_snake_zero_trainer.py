@@ -80,7 +80,6 @@ class AlphaSnakeZeroTrainer:
                     V += sample_v
                     X += self.mirror_states(sample_x)
                     V += self.mirror_values(sample_v)
-            Alice.clear()
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
             print("Data collecting time", time() - t0)
