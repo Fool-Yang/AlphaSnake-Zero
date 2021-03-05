@@ -1,5 +1,4 @@
 from numpy import flip
-from math import ceil
 from time import time
 
 from utils.agent import Agent
@@ -38,7 +37,7 @@ class AlphaSnakeZeroTrainer:
             # self play
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
-            Alice = Agent(nnet, 100 + 2*iteration, True, (self.self_play_games, self.snake_cnt))
+            Alice = Agent(nnet, 2 + 2*iteration, True, (self.self_play_games, self.snake_cnt))
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             winner_ids = gr.run(Alice, printing = True)
             print("\nCollecting data...")
@@ -51,36 +50,34 @@ class AlphaSnakeZeroTrainer:
                     v = Alice.values[game_id][snake_id]
                     m = Alice.moves[game_id][snake_id]
                     # assign estimated values
-                    last_max = max(v[-1])
+                    delta = 0.8
+                    gamma = delta
                     if snake_id == winner_ids[game_id]:
-                        v[-1][m[-1]] += (1.0 - v[-1][m[-1]])
+                        last_max = 1.0
+                        for i in range(len(x) - 1, -1, -1):
+                            v[i][m[i]] = last_max
+                            for j in range(3):
+                                if j == m[i]:
+                                    v[i][j] = last_max
+                                else:
+                                    v[i][j] += (1.0 - v[i][j])*gamma
+                            last_max = max(v[i])
+                            gamma *= delta
                     else:
-                        v[-1][m[-1]] = 0.0
-                    delta = max(v[-1]) - last_max
-                    i = len(x) - 2
-                    while i >= 0 and delta != 0.0:
-                        last_max = max(v[i])
-                        v[i][m[i]] += delta
-                        # once the network is somewhat good this should never happen
-                        if v[i][m[i]] < 0.0:
-                            v[i][m[i]] = 0.0
-                        elif v[i][m[i]] > 1.0:
-                            v[i][m[i]] = 1.0
-                        delta = max(v[i]) - last_max
-                        i -= 1
-                    # sampling
-                    sample_x = x[i + 1:]
-                    sample_v = v[i + 1:]
-                    i = len(sample_x) + 1
-                    # can result in an infinite loop if sample_length is too small
-                    while i <= len(x):
-                        sample_x.append(x[-i])
-                        sample_v.append(v[-i])
-                        i = ceil(1.5*i)
-                    X += sample_x
-                    V += sample_v
-                    X += self.mirror_states(sample_x)
-                    V += self.mirror_values(sample_v)
+                        last_max = 0.0
+                        for i in range(len(x) - 1, -1, -1):
+                            v[i][m[i]] = last_max
+                            for j in range(3):
+                                if j == m[i]:
+                                    v[i][j] = last_max
+                                else:
+                                    v[i][j] -= v[i][j]*gamma
+                            last_max = max(v[i])
+                            gamma *= delta
+                    X += x
+                    V += v
+                    X += self.mirror_states(x)
+                    V += self.mirror_values(v)
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
             # training
