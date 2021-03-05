@@ -21,21 +21,29 @@ class MPGameRunner:
     def run(self, Alice, Bob = None, Alice_snake_cnt = None):
         games = self.games
         show = self.game_cnt == 1
-        if Alice_snake_cnt is None:
+        if show:
+            f = open("replay.rep", 'w')
+            f.close()
+        if Bob and Alice_snake_cnt is None:
             Alice_snake_cnt = games[0].snake_cnt//2
         winners = [None]*self.game_cnt
         while games:
-            states = []
-            ids = []
             if Bob:
+                states_A = []
+                ids_A = []
+                states_B = []
+                ids_B = []
                 for game_id in games:
                     states, ids = games[game_id].get_states_and_ids()
-                    states_A = [states[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                    ids_A = [ids[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                    states_B = [states[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
-                    ids_B = [ids[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
+                    states_A += [states[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
+                    ids_A += [ids[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
+                    states_B += [states[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
+                    ids_B += [ids[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
                 moves = Alice.make_moves(states_A, ids_A) + Bob.make_moves(states_B, ids_B)
+                ids = ids_A + ids_B
             else:
+                states = []
+                ids = []
                 for game_id in games:
                     states_and_ids = games[game_id].get_states_and_ids()
                     states += states_and_ids[0]

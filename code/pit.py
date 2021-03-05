@@ -28,13 +28,13 @@ while True:
         win = 0.0
         loss = 0.0
         t0 = time()
-        for _ in range(pit_games):
-            g = Game(height, width, snake_cnt)
-            winner_id = g.run(Alice, Bob, sep = number_of_new_nets)
+        gr = MPGameRunner(height, width, snake_cnt, health_dec, pit_games)
+        winner_ids = gr.run(Alice, Bob, snake_cnt//2)
+        for winner_id in winner_ids:
             if winner_id is None:
                 win += 0.5
                 loss += 0.5
-            elif winner_id < number_of_new_nets:
+            elif winner_id < 1:
                 loss += 1.0
             else:
                 win += 1.0
