@@ -27,3 +27,5 @@ Run pit.py to see competition results between different generations. If a genera
 Run test_models.py to watch some games played by the model.
 
 Run test_pit.py to run a large number of games between 2 models and observe the stats.
+
+*Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
