@@ -3,8 +3,8 @@ from math import ceil
 from time import time
 
 from utils.agent import Agent
-from utils.mp_game_runner import MPGameRunner
 from utils.alpha_nnet import AlphaNNet
+from utils.mp_game_runner import MPGameRunner
 
 class AlphaSnakeZeroTrainer:
     

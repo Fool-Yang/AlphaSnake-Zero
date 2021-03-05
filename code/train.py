@@ -1,6 +1,7 @@
-from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
-from utils.alpha_nnet import AlphaNNet
 import tensorflow as tf
+
+from utils.alpha_nnet import AlphaNNet
+from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
 
 try:
     # when running on Google Cloud
