@@ -1,5 +1,5 @@
 from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
-from utils.alphaNNet import AlphaNNet
+from utils.alpha_nnet import AlphaNNet
 import tensorflow as tf
 
 try:
