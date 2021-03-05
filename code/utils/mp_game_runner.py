@@ -1,3 +1,5 @@
+from time import time
+
 from utils.game import Game
 
 class MPGameRunner:

@@ -1,7 +1,8 @@
+from numpy import array
+
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.models import Model, load_model, clone_model
-from numpy import array, float32
 
 class AlphaNNet:
     
@@ -48,10 +49,10 @@ class AlphaNNet:
             self.v_net = Model(inputs = X, outputs = Y)
     
     def train(self, X, Y, epochs = 128, batch_size = 2048):
-        self.v_net.fit(array(X, dtype = float32), array(Y, dtype = float32), epochs = epochs, batch_size = batch_size)
+        self.v_net.fit(array(X), array(Y), epochs = epochs, batch_size = batch_size)
     
     def v(self, X):
-        return self.v_net.predict(X)
+        return self.v_net.predict(array(X))
     
     def copy_and_compile(self, TPU = None):
         boundaries = [20, 40, 60, 80, 100]
