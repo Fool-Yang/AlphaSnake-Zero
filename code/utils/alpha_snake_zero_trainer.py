@@ -36,12 +36,11 @@ class AlphaSnakeZeroTrainer:
                 health_dec = 3
             # self play
             # for training, all snakes are played by the same agent
-            print("Self playing games...")
+            print("\nSelf playing games...")
             Alice = Agent(nnet, 100 + 2*iteration, True, (self.self_play_games, self.snake_cnt))
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
-            t0 = time()
-            winner_ids = gr.run(Alice)
-            print("Self play time", time() - t0)
+            winner_ids = gr.run(Alice, printing = True)
+            print("\nCollecting data...")
             X = []
             V = []
             # collect training examples
@@ -97,7 +96,7 @@ class AlphaSnakeZeroTrainer:
             f.write(log)
             f.close()
             # save the model
-            print("Saving the model...")
+            print("\nSaving the model...")
             iteration += 1
             nnet.save(name + str(iteration))
     

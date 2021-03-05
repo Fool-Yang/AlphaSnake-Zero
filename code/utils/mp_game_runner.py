@@ -18,7 +18,7 @@ class MPGameRunner:
         self.game_length = 0
     
     # Alice and Bob are agents using different nets
-    def run(self, Alice, Bob = None, Alice_snake_cnt = None):
+    def run(self, Alice, Bob = None, Alice_snake_cnt = None, printing = False):
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
@@ -31,11 +31,11 @@ class MPGameRunner:
         turn = 0
         while games:
             turn += 1
-            if len(game) == 1:
-                print("Running the game. On turn", str(turn) + "...")
-            else:
-                print("Concurrently running", len(game), "games. On turn", str(turn) + "...")
-            print("Total time spent:", time() - t0)
+            if printing:
+                if len(games) == 1:
+                    print("Running the game. On turn", str(turn) + "...")
+                else:
+                    print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
             if Bob:
                 states_A = []
                 ids_A = []
@@ -89,6 +89,8 @@ class MPGameRunner:
                         kills.add(game_id)
             for game_id in kills:
                 del games[game_id]
+            if printing:
+                print("Turn finished. Total time spent:", time() - t0)
         
         # log
         self.wall_collision /= self.game_cnt
