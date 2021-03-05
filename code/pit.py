@@ -15,6 +15,7 @@ model_name = input("Enter the model name (not including the generation number no
 iteration = int(input("Enter the starting iteration:\n"))
 nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
 Alice = Agent(nnet)
+Alice_snake_cnt = snake_cnt//2
 f = open("champions.csv", 'w')
 f.write("Model name, Score against the previous champion\n")
 f.write(model_name + str(iteration) + ", N/A\n")
@@ -29,12 +30,12 @@ while True:
         loss = 0.0
         t0 = time()
         gr = MPGameRunner(height, width, snake_cnt, 1, pit_games)
-        winner_ids = gr.run(Alice, Bob, snake_cnt//2, True)
+        winner_ids = gr.run(Alice, Bob, Alice_snake_cnt, True)
         for winner_id in winner_ids:
             if winner_id is None:
                 win += 0.5
                 loss += 0.5
-            elif winner_id < 1:
+            elif winner_id < Alice_snake_cnt:
                 loss += 1.0
             else:
                 win += 1.0
