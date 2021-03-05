@@ -42,8 +42,6 @@ class AlphaSnakeZeroTrainer:
             t0 = time()
             winner_ids = gr.run(Alice)
             print("Self play time", time() - t0)
-            print("Collecting training data...")
-            t0 = time()
             X = []
             V = []
             # collect training examples
@@ -85,9 +83,7 @@ class AlphaSnakeZeroTrainer:
                     V += self.mirror_values(sample_v)
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
-            print("Data collecting time", time() - t0)
             # training
-            print("Training the model...")
             nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
             nnet.train(X, V)

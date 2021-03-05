@@ -19,15 +19,23 @@ class MPGameRunner:
     
     # Alice and Bob are agents using different nets
     def run(self, Alice, Bob = None, Alice_snake_cnt = None):
+        t0 = time()
         games = self.games
         show = self.game_cnt == 1
         if show:
             f = open("replay.rep", 'w')
             f.close()
-        if Bob and Alice_snake_cnt is None:
+        elif Bob and Alice_snake_cnt is None:
             Alice_snake_cnt = games[0].snake_cnt//2
         winners = [None]*self.game_cnt
+        turn = 0
         while games:
+            turn += 1
+            if len(game) == 1:
+                print("Running the game. On turn", str(turn) + "...")
+            else:
+                print("Concurrently running", len(game), "games. On turn", str(turn) + "...")
+            print("Total time spent:", time() - t0)
             if Bob:
                 states_A = []
                 ids_A = []
