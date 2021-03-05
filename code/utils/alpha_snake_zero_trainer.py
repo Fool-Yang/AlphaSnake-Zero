@@ -22,6 +22,7 @@ class AlphaSnakeZeroTrainer:
         self.TPU = TPU
     
     def train(self, nnet, name = "AlphaSnake", iteration = 0):
+        nnet = nnet.copy_and_compile()
         # log
         if iteration == 0:
             f = open("log.csv", 'w')
