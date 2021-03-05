@@ -1,5 +1,4 @@
 *.pyc
-*.h5
 replay.rep
 log.csv
 champions.csv
