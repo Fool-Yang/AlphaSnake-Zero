@@ -36,7 +36,6 @@ class AlphaSnakeZeroTrainer:
                 health_dec = 3
             # self play
             # for training, all snakes are played by the same agent
-            nnet = nnet.copy_and_compile(TPU = self.TPU)
             print("\nSelf playing games...")
             Alice = Agent(nnet, 100 + 2*iteration, True, (self.self_play_games, self.snake_cnt))
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
@@ -84,9 +83,11 @@ class AlphaSnakeZeroTrainer:
             X = X[len(X) % 2048:]
             V = V[len(V) % 2048:]
             # training
+            nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
             nnet.train(X, V)
             print("Training time", time() - t0)
+            nnet = nnet.copy_and_compile()
             # log
             log_list = [gr.wall_collision, gr.body_collision, gr.head_collision,
                         gr.starvation, gr.food_eaten, gr.game_length]
