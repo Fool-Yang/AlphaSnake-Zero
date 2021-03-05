@@ -1,5 +1,5 @@
 from random import sample, choice, random
-from numpy import array, rot90
+from numpy import array, float32, rot90
 
 WALL = 1.0
 MY_HEAD = -1.0
@@ -234,7 +234,7 @@ class Game:
         # k = 1 => rotate left
         # k = 2 => rotate 180
         # k = 3 => rotate right
-        return rot90(array(grid), k = last_move)
+        return rot90(array(grid, dtype = float32), k = last_move)
     
     def draw(self):
         board = [[0] * self.width for _ in range(self.height)]

@@ -16,7 +16,7 @@ class Agent:
             self.moves = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
     
     def make_moves(self, states, ids = None):
-        V = self.nnet.v(array(states))
+        V = self.nnet.v(states)
         if self.softmax_base:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
