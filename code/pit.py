@@ -29,7 +29,7 @@ while True:
         loss = 0.0
         t0 = time()
         gr = MPGameRunner(height, width, snake_cnt, 1, pit_games)
-        winner_ids = gr.run(Alice, Bob, snake_cnt//2)
+        winner_ids = gr.run(Alice, Bob, snake_cnt//2, True)
         for winner_id in winner_ids:
             if winner_id is None:
                 win += 0.5
