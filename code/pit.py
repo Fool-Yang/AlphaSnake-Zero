@@ -30,7 +30,8 @@ while True:
         loss = 0.0
         t0 = time()
         gr = MPGameRunner(height, width, snake_cnt, 1, pit_games)
-        winner_ids = gr.run(Alice, Bob, Alice_snake_cnt, True)
+        print("\nRunning games...")
+        winner_ids = gr.run(Alice, Bob, Alice_snake_cnt)
         for winner_id in winner_ids:
             if winner_id is None:
                 win += 0.5
@@ -42,13 +43,13 @@ while True:
         score = win/(win + loss)
         if score > threshold:
             Alice = Bob
-            print("Iteration", iteration, "beats the previouse version. score =", score, "\nIt is now the new champion!")
+            print("Iteration", iteration, "beats the previouse one. score =", score, "\nIt is the new champion!")
             f = open("champions.csv", 'a')
             f.write(model_name + str(iteration) + ", " + str(score) + '\n')
             f.close()
         else:
             print("Iteration", iteration, "failed to beat the previouse one. score =", score)
-        print("Competing time", time() - t0, "\n")
+        print("Competing time", time() - t0)
         iteration += 1
     except OSError:
         sleep(10)
