@@ -51,9 +51,9 @@ class AlphaSnakeZeroTrainer:
                     v = Alice.values[game_id][snake_id]
                     m = Alice.moves[game_id][snake_id]
                     # assign estimated values
-                    delta = 0.8
+                    delta = 0.5
                     gamma = delta
-                    sample_delta = 1.3
+                    sample_delta = 1.2
                     sample_index = 1
                     if snake_id == winner_ids[game_id]:
                         last_max = 1.0
@@ -90,14 +90,19 @@ class AlphaSnakeZeroTrainer:
                     # do this if not using the sampling method
                     # X += x
                     # V += v
-            X = X[len(X) % 2048:]
-            V = V[len(V) % 2048:]
+            bs = 2048
+            if len(X) < bs:
+                bs = len(X)
+            else:
+                # chop for TPU
+                X = X[len(X) % bs:]
+                V = V[len(V) % bs:]
             X += self.mirror_states(X)
             V += self.mirror_values(V)
             # training
             nnet = nnet.copy_and_compile(TPU = self.TPU)
             t0 = time()
-            nnet.train(X, V)
+            nnet.train(X, V, batch_size = bs)
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
             # log
