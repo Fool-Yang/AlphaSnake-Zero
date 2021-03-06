@@ -14,27 +14,12 @@ class Agent:
             self.records = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
             self.values = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
             self.moves = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
-            self.odds = {i: {j: [] for j in range(snake_cnt)} for i in range(game_cnt)}
     
     def make_moves(self, states, ids = None):
         V = self.nnet.v(states)
         if self.softmax_base:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
-            odds = []
-            prod = 1.0
-            snake_cnt = 0
-            game_id = ids[0][0]
-            for i in range(len(states)):
-                if ids[i][0] != game_id:
-                    odds += [prod]*snake_cnt
-                    prod = pmfs[i][moves[i]]
-                    snake_cnt = 1
-                    game_id = ids[i][0]
-                else:
-                    prod *= pmfs[i][moves[i]]
-                    snake_cnt += 1
-            odds += [prod]*snake_cnt
             for i in range(len(states)):
                 game_id = ids[i][0]
                 snake_id = ids[i][1]
@@ -42,7 +27,6 @@ class Agent:
                 self.records[game_id][snake_id].append(states[i])
                 self.values[game_id][snake_id].append(V[i])
                 self.moves[game_id][snake_id].append(moves[i])
-                self.odds[game_id][snake_id].append(odds[i]/pmfs[i][moves[i]])
         else:
             moves = self.argmaxs(V)
         return moves

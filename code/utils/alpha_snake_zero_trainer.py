@@ -50,11 +50,10 @@ class AlphaSnakeZeroTrainer:
                     x = Alice.records[game_id][snake_id]
                     v = Alice.values[game_id][snake_id]
                     m = Alice.moves[game_id][snake_id]
-                    p = Alice.odds[game_id][snake_id]
                     # assign estimated values
-                    delta = 0.8
+                    delta = 0.5
                     gamma = delta
-                    sample_delta = 1.1
+                    sample_delta = 1.2
                     sample_index = 1
                     if snake_id == winner_ids[game_id]:
                         reward = 1.0
@@ -64,7 +63,7 @@ class AlphaSnakeZeroTrainer:
                     for i in range(len(x) - 1, -1, -1):
                         for j in range(3):
                             if j == m[i]:
-                                v[i][j] += (last_max - v[i][j])*p[i]
+                                v[i][j] = last_max
                             else:
                                 v[i][j] += (reward - v[i][j])*gamma
                         last_max = max(v[i])
