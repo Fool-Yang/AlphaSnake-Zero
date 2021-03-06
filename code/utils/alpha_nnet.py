@@ -16,27 +16,27 @@ class AlphaNNet:
             
             H_shortcut = Cropping2D(cropping = 2)(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 2)(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias=False)(H))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(256, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(256, (3, 3), padding = "same", use_bias=False)(H))
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(256, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(256, (3, 3), padding = "same", use_bias=False)(H))
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(256, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(256, (3, 3), padding = "same", use_bias=False)(H))
+            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
+            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             Y = Activation('sigmoid')(Dense(3)(Flatten()(H)))
