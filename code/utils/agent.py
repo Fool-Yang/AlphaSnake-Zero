@@ -34,10 +34,10 @@ class Agent:
                 else:
                     prod *= pmfs[i][moves[i]]
                     snake_cnt += 1
-                game_id = ids[i][0]
-                snake_id = ids[i][1]
             odds += [prod]*snake_cnt
             for i in range(len(states)):
+                game_id = ids[i][0]
+                snake_id = ids[i][1]
                 # record the info for traininig
                 self.records[game_id][snake_id].append(states[i])
                 self.values[game_id][snake_id].append(V[i])
