@@ -51,5 +51,6 @@ while True:
             print("Iteration", iteration, "failed to beat the previouse one. score =", score)
         print("Competing time", time() - t0)
         iteration += 1
+        print("The next challenger will be", model_name + str(iteration))
     except OSError:
         sleep(10)
