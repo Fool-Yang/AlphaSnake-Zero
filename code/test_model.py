@@ -15,7 +15,6 @@ net.v_net.summary()
 Alice = Agent(net)
 
 f = open("replay.rep", 'w')
-f.write('')
 f.close()
 
 print("\nRunning games...")
