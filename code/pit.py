@@ -12,7 +12,7 @@ width = 11
 snake_cnt = 4
 
 model_name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
-iteration = int(input("Enter the starting iteration:\n"))
+iteration = int(input("Enter the starting generation (the first champion):\n"))
 nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
 Alice = Agent(nnet)
 Alice_snake_cnt = snake_cnt//2

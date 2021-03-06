@@ -18,7 +18,7 @@ except:
     TPU = None
 
 name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
-start = int(input("Enter the starting iteration (0 for creating a new model):\n"))
+start = int(input("Enter the starting generation (0 for creating a new model):\n"))
 if start == 0:
     ANNet = AlphaNNet(input_shape = (21, 21, 3))
 else:
