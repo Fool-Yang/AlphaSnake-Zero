@@ -15,10 +15,9 @@ net.v_net.summary()
 Alice = Agent(net)
 
 f = open("replay.rep", 'w')
-f.write('')
 f.close()
 
-print("Running games...")
+print("\nRunning games...")
 for _ in range(competeEps):
     gr = MPGameRunner(height, width, snake_cnt)
     gr.run(Alice)

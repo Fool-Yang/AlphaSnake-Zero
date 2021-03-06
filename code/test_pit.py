@@ -7,8 +7,8 @@ from time import time
 height = 11
 width = 11
 snake_cnt = 4
-competeEps = 200
 health_dec = 1
+competeEps = 300
 
 file_name1 = input("\nEnter the model 1 name:\n")
 file_name2 = input("\nEnter the model 2 name:\n")

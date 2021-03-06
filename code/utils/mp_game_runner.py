@@ -24,10 +24,7 @@ class MPGameRunner:
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
-        if show:
-            f = open("replay.rep", 'w')
-            f.close()
-        elif Bob and Alice_snake_cnt is None:
+        if Bob and Alice_snake_cnt is None:
             Alice_snake_cnt = games[0].snake_cnt//2
         winners = [None]*self.game_cnt
         turn = 0
