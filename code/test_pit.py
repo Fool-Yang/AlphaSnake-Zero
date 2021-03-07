@@ -48,6 +48,7 @@ print("Competing time", time() - t0)
 print("\nRunning games...")
 win = 0
 loss = 0
+draw = 0
 t0 = time()
 gr = MPGameRunner(height, width, snake_cnt, health_dec, competeEps)
 winner_ids = gr.run(Alice, Bob, snake_cnt//2)
