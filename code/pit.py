@@ -4,9 +4,8 @@ from utils.mp_game_runner import MPGameRunner
 
 from time import time, sleep
 
-pit_games = 600
-threshold = 0.53
-number_of_new_nets = 2
+pit_games = 500
+threshold = 0.51
 height = 11
 width = 11
 snake_cnt = 4
