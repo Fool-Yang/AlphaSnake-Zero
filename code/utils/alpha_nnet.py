@@ -2,6 +2,7 @@ from numpy import array
 
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.models import Model, load_model, clone_model
 
 class AlphaNNet:
@@ -10,34 +11,45 @@ class AlphaNNet:
         if model_name:
             self.v_net = load_model(model_name)
         elif input_shape:
+            # regularization constant
+            c = 0.0001
+            
             X = Input(input_shape)
             
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(X)))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(X)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            
+            # a residual block
+            H_shortcut = Cropping2D(cropping = 2)(H)
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = BatchNormalization(axis = 3)(H)
+            H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 2)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = BatchNormalization(axis = 3)(H)
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 2)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = BatchNormalization(axis = 3)(H)
             H = Activation('relu')(Add()([H, H_shortcut]))
             
             H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c), padding = "same")(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = BatchNormalization(axis = 3)(H)
             H = Activation('relu')(Add()([H, H_shortcut]))
             
-            H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
-            H = Activation('relu')(Add()([H, H_shortcut]))
-            
-            H_shortcut = Cropping2D(cropping = 1)(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(Conv2D(128, (3, 3), use_bias = False)(H)))
-            H = BatchNormalization(axis = 3)(Conv2D(128, (3, 3), padding = "same", use_bias = False)(H))
-            H = Activation('relu')(Add()([H, H_shortcut]))
+            H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
             Y = Activation('sigmoid')(Dense(3)(Flatten()(H)))
             
