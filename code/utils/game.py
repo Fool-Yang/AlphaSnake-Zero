@@ -20,23 +20,29 @@ class Game:
         # standard starting board positions (in order) for 7x7, 11x11, and 19x19
         # battlesnake uses random positions for any non-standard board size
         # https://github.com/BattlesnakeOfficial/engine/blob/master/rules/create.go
-        positions = sample(
-            (
-                (1, 1), (height - 2, width - 2), (height - 2, 1), (1, width - 2),
-                (1, width//2), (height//2, width - 2), (height - 2, width//2), (height//2, 1)
-            ),
-            snake_cnt)
+        positions = sample(((1, 1), (height - 2, width - 2),
+                            (height - 2, 1), (1, width - 2),
+                            (1, width//2), (height//2, width - 2),
+                            (height - 2, width//2), (height//2, 1)),
+                           snake_cnt)
         self.last_moves = {i: choice((0, 1, 2, 3)) for i in range(snake_cnt)}
         
         # I changed the data structure to speed up the game
         # empty_positions is used to generate food randomly
         self.empty_positions = {(y, x) for y in range(height) for x in range(width)}
-        
+
+        # place snakes
         self.snakes = [Snake(ID, 100, [positions[ID]] * 3) for ID in range(snake_cnt)]
         for snake in self.snakes:
             self.empty_positions.remove(snake.head.position)
-        
-        self.food = set(sample(self.empty_positions, snake_cnt))
+
+        # place food
+        # one food at the center and one 2-step-away food for each snake
+        self.food = {(height//2, width//2)}
+        for snake in self.snakes:
+            head_y, head_x = snake.head.position
+            self.food.add(choice([(head_y - 1, head_x - 1), (head_y - 1, head_x + 1),
+                                  (head_y + 1, head_x - 1), (head_y + 1, head_x + 1)]))
         for food in self.food:
             self.empty_positions.remove(food)
         
