@@ -86,18 +86,37 @@ class Game:
                 if tail not in self.heads:
                     self.empty_positions.add(tail)
         
-        if show:
-            self.draw()
-        
         # reduce health
         for snake in snakes:
             snake.health -= self.health_dec
         
+        # check for food eaten
+        for snake in snakes:
+            if snake.head.position in self.food:
+                food = snake.head.position
+                self.food.remove(food)
+                snake.health = 100
+                snake.grow()
+                self.food_eaten += 1
+        
+        # spawn food
+        if len(self.food) == 0:
+            chance = 1.0
+        else:
+            chance = 0.15
+        if random() <= chance:
+            try:
+                food = choice(tuple(self.empty_positions))
+                self.food.add(food)
+                self.empty_positions.remove(food)
+            except IndexError:
+                # Cannot choose from an empty set
+                pass
+        
+        if show:
+            self.draw()
+        
         # remove dead snakes
-        # I have checked the code of the battlesnake game
-        # their algorithm for checking collisions is shit
-        # they run a nested for loop for every snake
-        # this whole check through runs in O(n) time
         kills = set()
         for snake in snakes:
             head = snake.head.position
@@ -146,29 +165,6 @@ class Game:
                 except KeyError:
                     pass
             snakes.remove(snake)
-        
-        # check for food eaten
-        for snake in snakes:
-            if snake.head.position in self.food:
-                food = snake.head.position
-                self.food.remove(food)
-                snake.health = 100
-                snake.grow()
-                self.food_eaten += 1
-        
-        # spawn food
-        if len(self.food) == 0:
-            chance = 1.0
-        else:
-            chance = 0.15
-        if random() <= chance:
-            try:
-                food = choice(tuple(self.empty_positions))
-                self.food.add(food)
-                self.empty_positions.remove(food)
-            except IndexError:
-                # Cannot choose from an empty set
-                pass
         
         if show:
             self.draw()
