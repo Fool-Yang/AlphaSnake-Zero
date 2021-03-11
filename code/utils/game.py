@@ -1,8 +1,8 @@
 from random import sample, choice, random
 from numpy import array, float32, rot90
 
-WALL = 1.0
-MY_HEAD = -1.0
+WALL = -1.0
+MY_HEAD = 1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
@@ -211,16 +211,16 @@ class Game:
         length_minus_half = you.length - 0.5
         for snake in self.snakes:
             # get the head
-            board[snake.head.position[0]][snake.head.position[1]][0] = (snake.length - length_minus_half) * HEAD_m
+            board[snake.head.position[0]][snake.head.position[1]][0] = (length_minus_half - snake.length) * HEAD_m
             # get the body
             # the head is also counted as a body for the making of the state because it will be a body next turn
             # going backwards because there could be a repeated tail when snake eats food
             body = snake.tail
-            dist = 1
+            dist = -1
             while body:
                 board[body.position[0]][body.position[1]][1] = dist * SNAKE_m
                 body = body.prev_node
-                dist += 1
+                dist -= 1
         
         for food in self.food:
             board[food[0]][food[1]][2] = (101 - you.health) * HUNGER_m
