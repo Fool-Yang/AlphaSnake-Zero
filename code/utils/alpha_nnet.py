@@ -12,7 +12,7 @@ class AlphaNNet:
             self.v_net = load_model(model_name)
         elif input_shape:
             # regularization constant
-            c = 1e-7
+            c = 1e-5
             
             X = Input(input_shape)
             
@@ -44,14 +44,14 @@ class AlphaNNet:
             H = Conv2D(256, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
-            H = Conv2D(256, (1, 1), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Conv2D(2, (1, 1), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
             Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(Flatten()(H)))
             
             self.v_net = Model(inputs = X, outputs = Y)
     
-    def train(self, X, Y, epochs = 128, batch_size = 2048):
+    def train(self, X, Y, epochs = 32, batch_size = 2048):
         self.v_net.fit(array(X), array(Y), epochs = epochs, batch_size = batch_size)
     
     def v(self, X):
