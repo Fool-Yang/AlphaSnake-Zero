@@ -54,8 +54,6 @@ class Agent:
                 for i in range(3):
                     if v[0][i] < V[index][i]:
                         V[index][i] = v[0][i]
-        for i in range(len(V)):
-            V[i] /= self.MCTS_breadth
         if self.training:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
