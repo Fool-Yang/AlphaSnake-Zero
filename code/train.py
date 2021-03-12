@@ -21,6 +21,7 @@ name = input("Enter the model name (not including the generation number nor \".h
 start = int(input("Enter the starting generation (0 for creating a new model):\n"))
 if start == 0:
     ANNet = AlphaNNet(input_shape = (21, 21, 3))
+    ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
 Trainer = AlphaSnakeZeroTrainer(TPU = TPU)
