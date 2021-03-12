@@ -11,16 +11,9 @@ class MPGameRunner:
         self.health_dec = health_dec
         self.game_cnt = game_cnt
         self.games = {ID: Game(ID, height, width, snake_cnt, health_dec) for ID in range(game_cnt)}
-        # log
-        self.wall_collision = 0
-        self.body_collision = 0
-        self.head_collision = 0
-        self.starvation = 0
-        self.food_eaten = 0
-        self.game_length = 0
     
     # Alice and Bob are agents using different nets
-    def run(self, Alice, Bob = None, Alice_snake_cnt = None, printing = False):
+    def run(self, Alice, Bob = None, Alice_snake_cnt = None):
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
@@ -64,15 +57,10 @@ class MPGameRunner:
                 game = games[game_id]
                 result = game.tic(moves_for_game[game_id], show)
                 # if game ended
-                if result != -1:
-                    # log
-                    self.wall_collision += game.wall_collision
-                    self.body_collision += game.body_collision
-                    self.head_collision += game.head_collision
-                    self.starvation += game.starvation
-                    self.food_eaten += game.food_eaten
-                    self.game_length += game.game_length
-                    winners[game_id] = result
+                if result != 0:
+                    for i in range(len(result)):
+                        if result[i] == 1.0
+                            winners[game_id] = i
                     kills.add(game_id)
                 # to speed up the competing process
                 # the team with snakes left wins
@@ -88,14 +76,4 @@ class MPGameRunner:
                         kills.add(game_id)
             for game_id in kills:
                 del games[game_id]
-            if printing:
-                print("Turn finished. Total time spent:", time() - t0)
-        
-        # log
-        self.wall_collision /= self.game_cnt
-        self.body_collision /= self.game_cnt
-        self.head_collision /= self.game_cnt
-        self.starvation /= self.game_cnt
-        self.food_eaten /= self.game_cnt
-        self.game_length /= self.game_cnt
         return winners
