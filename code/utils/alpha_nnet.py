@@ -63,7 +63,7 @@ class AlphaNNet:
         n = 1e-5        
         for i in range(len(boundaries)):
             values[i] = n
-            n *= 0.3                        
+            n *= 0.25
         if TPU:
             with TPU.scope():
                 # value
