@@ -60,7 +60,7 @@ class AlphaNNet:
     def copy_and_compile(self, TPU = None):
         boundaries = [20, 40, 60, 80, 100]
         values = [0.0]*(len(boundaries) + 1)
-        n = 1e-5        
+        n = 1e-5
         for i in range(len(boundaries)):
             values[i] = n
             n *= 0.25
