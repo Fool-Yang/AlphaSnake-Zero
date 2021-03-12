@@ -230,7 +230,6 @@ class Game:
         
         # from this point, all positions are measured relative to our head
         head_y, head_x = you.head.position
-        board[head_y][head_x][0] = MY_HEAD
         for y in range(self.height):
             for x in range(self.width):
                 grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]

@@ -9,7 +9,7 @@ from utils.mp_game_runner import MPGameRunner
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                 self_play_games = 256,
+                 self_play_games = 128,
                  height = 11,
                  width = 11,
                  snake_cnt = 4,
@@ -38,7 +38,7 @@ class AlphaSnakeZeroTrainer:
             # self play
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
-            Alice = Agent(nnet, 2 + iteration, True)
+            Alice = Agent(nnet, 3 + iteration, True)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             winner_ids = gr.run(Alice, printing = True)
             # collect training examples
