@@ -36,7 +36,7 @@ class Agent:
         MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames)
         MCTS = MPGameRunner(game_cnt = len(subgames), games = subgames)
         rewards = MCTS.run(MCTSAlice, MCTS_depth = self.MCTS_depth)
-        V = [array([0.0, 0.0, 0.0], dtype = float32) for _ in range(len(ids))]
+        V = [array([1.0, 1.0, 1.0], dtype = float32) for _ in range(len(ids))]
         for subgame_id in MCTSAlice.values:
             game_id = parent_game[subgame_id]
             for snake_id in MCTSAlice.values[subgame_id]:
@@ -50,7 +50,10 @@ class Agent:
                 for i in range(len(v) - 1, -1, -1):
                     v[i][m[i]] = last_max
                     last_max = max(v[i])
-                V[value_index[game_id][snake_id]] += v[0]
+                index = value_index[game_id][snake_id]
+                for i in range(3):
+                    if v[0][i] < V[index][i]:
+                        V[index][i] = v[0][i]
         for i in range(len(V)):
             V[i] /= self.MCTS_breadth
         if self.training:
