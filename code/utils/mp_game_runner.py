@@ -45,7 +45,7 @@ class MPGameRunner:
             ids = []
             for game_id in games:
                 ids += games[game_id].get_ids()
-            moves = Alice.make_moves(games, ids, printing = printing)
+            moves = Alice.make_moves(games, ids)
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(moves)):
                 moves_for_game[ids[i][0]].append(moves[i])

@@ -44,7 +44,7 @@ class AlphaSnakeZeroTrainer:
             print("\nSelf playing games...")
             Alice = Agent(nnet, 3 + iteration, True, self.MCTS_breadth, self.MCTS_depth)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
-            winner_ids = gr.run(Alice, printing = True)
+            winner_ids = gr.run(Alice)
             # collect training examples
             X = Alice.records 
             V = Alice.values
