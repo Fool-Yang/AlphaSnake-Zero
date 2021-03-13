@@ -8,7 +8,7 @@ height = 11
 width = 11
 snake_cnt = 4
 health_dec = 1
-competeEps = 300
+competeEps = 100
 
 file_name1 = input("\nEnter the model 1 name:\n")
 file_name2 = input("\nEnter the model 2 name:\n")
