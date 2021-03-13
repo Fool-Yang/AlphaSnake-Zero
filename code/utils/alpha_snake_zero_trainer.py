@@ -46,7 +46,7 @@ class AlphaSnakeZeroTrainer:
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             winner_ids = gr.run(Alice)
             # collect training examples
-            X = Alice.records 
+            X = Alice.records
             V = Alice.values
             bs = 2048
             if len(X) < bs:
