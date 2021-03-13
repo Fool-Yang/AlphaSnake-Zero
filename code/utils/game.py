@@ -57,13 +57,32 @@ class Game:
         self.starvation = 0
         self.food_eaten = 0
         self.game_length = 0
-    
+
+    """
+    Get states for all snakes
+    Return:
+        a list of states for each snake
+    """
     def get_states(self):
         return [self.make_state(snake, self.last_moves[snake.id]) for snake in self.snakes]
     
+    """
+    Get game and snake ids
+    Return:
+        a list of pairs (this game's id, snake's id)
+    """
     def get_ids(self):
         return [(self.id, snake.id) for snake in self.snakes]
     
+    """
+    Move the game to the next turn
+    Args:
+        moves: a list of moves the snakes will make
+        show: weather to draw the game board in "replay.rep"
+        food_spawn_chance: the chance of a food spawns
+    Return:
+        0 if the game continues or the rewards list if the game ends
+    """
     def tic(self, moves, show = False, food_spawn_chance = 0.15):
         snakes = self.snakes
         # execute moves
@@ -186,18 +205,15 @@ class Game:
         else:
             return 0
     
+    """
+    Process the game data and translate them into a game state
+    Args:
+        you: a Snake object that represents this snake
+        last_move: the last move you made; one of {0, 1, 2, 3}
+    Return:
+        a grid that represents the game state for a snake
+    """
     def make_state(self, you, last_move):
-        """ Process the data and translate them into a grid
-        
-        Args:
-            you: a Snake object define by snake.py; represents this snake
-            last_move: the last move you made; one of {0, 1, 2, 3}
-        
-        Return:
-            grid: a grid that represents the game
-        
-        """
-        
         # gotta do the math to recenter the grid
         width = self.width * 2 - 1
         height = self.height * 2 - 1
@@ -239,7 +255,14 @@ class Game:
         # k = 2 => rotate 180
         # k = 3 => rotate right
         return rot90(array(grid, dtype = float32), k = last_move)
-    
+
+    """
+    Copy the game
+    Args:
+        subgame_id: the game id of the created copy
+    Return:
+        a deep copy of the game
+    """
     def subgame(self, subgame_id):
         game = Game(subgame_id, self.height, self.width, self.snake_cnt, self.health_dec)
         game.last_moves = {i: self.last_moves[i] for i in range(self.snake_cnt)}
@@ -250,7 +273,10 @@ class Game:
         game.bodies = {body for snake in game.snakes for body in snake}
         game.rewards = self.rewards[:]
         return game
-    
+
+    """
+    Draw the game board in "replay.rep"
+    """
     def draw(self):
         board = [[0] * self.width for _ in range(self.height)]
         
@@ -336,7 +362,7 @@ class Snake:
         new_tail.prev_node = self.tail
         self.tail.next_node = new_tail
         self.tail = new_tail
-
+    
     def copy(self):
         snake = Snake(self.id, self.health, [(0, 0)])
         snake.length = self.length
