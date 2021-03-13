@@ -30,8 +30,10 @@ class MPGameRunner:
         food_spawn_chance = 0.15 if MCTS_depth is None else 0.0
         rewards = [None]*self.game_cnt
         turn = 0
+        # run all the games in parallel
         while games:
             turn += 1
+            # print information
             if MCTS_depth is None:
                 if len(games) == 1:
                     print("Running the game. On turn", str(turn) + "...")
@@ -42,6 +44,8 @@ class MPGameRunner:
                     print("MCTS running the game. On step", str(turn) + "...")
                 else:
                     print("MCTS running", len(games), "games. On step", str(turn) + "...")
+            
+            # ask for moves from the Agent
             ids = []
             for game_id in games:
                 ids += games[game_id].get_ids()
@@ -49,6 +53,8 @@ class MPGameRunner:
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(moves)):
                 moves_for_game[ids[i][0]].append(moves[i])
+            
+            # tic all games
             kills = set()
             for game_id in games:
                 game = games[game_id]
@@ -64,14 +70,17 @@ class MPGameRunner:
                     self.game_length += game.game_length
                     rewards[game_id] = result
                     kills.add(game_id)
+            # remove games that ended
             for game_id in kills:
                 del games[game_id]
+            
             if MCTS_depth is None:
                 print("Turn finished. Total time spent:", time() - t0)
             elif turn >= MCTS_depth:
                 for game_id in games:
                     rewards[game_id] = games[game_id].rewards
                 break
+        
         # log
         self.wall_collision /= self.game_cnt
         self.body_collision /= self.game_cnt
@@ -79,4 +88,5 @@ class MPGameRunner:
         self.starvation /= self.game_cnt
         self.food_eaten /= self.game_cnt
         self.game_length /= self.game_cnt
+        
         return rewards
