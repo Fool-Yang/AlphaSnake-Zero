@@ -1,7 +1,7 @@
 from numpy import power, array, float32
 from numpy.random import choice
 
-from utils.mp_game_runner import MPGameRunner
+from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
