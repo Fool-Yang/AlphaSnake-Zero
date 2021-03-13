@@ -23,7 +23,7 @@ class MPGameRunner:
         self.game_length = 0
     
     # Alice is the agent
-    def run(self, Alice, MCTS_depth = None, printing = False):
+    def run(self, Alice, MCTS_depth = None):
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
@@ -32,17 +32,16 @@ class MPGameRunner:
         turn = 0
         while games:
             turn += 1
-            if printing:
-                if MCTS_depth is None:
-                    if len(games) == 1:
-                        print("Running the game. On turn", str(turn) + "...")
-                    else:
-                        print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
+            if MCTS_depth is None:
+                if len(games) == 1:
+                    print("Running the game. On turn", str(turn) + "...")
                 else:
-                    if len(games) == 1:
-                        print("MCTS running the game. On step", str(turn) + "...")
-                    else:
-                        print("MCTS running", len(games), "games. On step", str(turn) + "...")
+                    print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
+            else:
+                if len(games) == 1:
+                    print("MCTS running the game. On step", str(turn) + "...")
+                else:
+                    print("MCTS running", len(games), "games. On step", str(turn) + "...")
             ids = []
             for game_id in games:
                 ids += games[game_id].get_ids()
@@ -68,8 +67,7 @@ class MPGameRunner:
             for game_id in kills:
                 del games[game_id]
             if MCTS_depth is None:
-                if printing:
-                    print("Turn finished. Total time spent:", time() - t0)
+                print("Turn finished. Total time spent:", time() - t0)
             elif turn >= MCTS_depth:
                 for game_id in games:
                     rewards[game_id] = games[game_id].rewards
