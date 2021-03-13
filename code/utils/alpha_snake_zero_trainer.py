@@ -10,8 +10,6 @@ class AlphaSnakeZeroTrainer:
     
     def __init__(self,
                  self_play_games = 256,
-                 MCTS_breadth = 16,
-                 MCTS_depth = 4,
                  game_board_height = 11,
                  game_board_width = 11,
                  snake_cnt = 4,
@@ -30,8 +28,8 @@ class AlphaSnakeZeroTrainer:
         # log
         if iteration == 0:
             f = open("log.csv", 'w')
-            f.write("iteration, wall_collision, body_collision, head_collision, "
-                     + "starvation, food_eaten, game_length\n")
+            f.write("iteration, wall_collision, body_collision, head_collision, \
+                    starvation, food_eaten, game_length\n")
             f.close()
         health_dec = 9
         while True:
@@ -42,9 +40,16 @@ class AlphaSnakeZeroTrainer:
             # self play
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
-            Alice = Agent(nnet, 3 + iteration, True, self.MCTS_breadth, self.MCTS_depth)
+            Alice = Agent(nnet, softmax_base = 3 + iteration, training = True)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
-            winner_ids = gr.run(Alice)
+            gr.run(Alice)
+            # log
+            log_list = [gr.wall_collision, gr.body_collision, gr.head_collision,
+                        gr.starvation, gr.food_eaten, gr.game_length]
+            log = str(iteration) + ', ' + ', '.join(map(str, log_list)) + '\n'
+            f = open("log.csv", 'a')
+            f.write(log)
+            f.close()
             # collect training examples
             X = Alice.records
             V = Alice.values
@@ -63,13 +68,6 @@ class AlphaSnakeZeroTrainer:
             nnet.train(X, V, batch_size = bs)
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
-            # log
-            log_list = [gr.wall_collision, gr.body_collision, gr.head_collision,
-                        gr.starvation, gr.food_eaten, gr.game_length]
-            log = str(iteration) + ', ' + ', '.join(map(str, log_list)) + '\n'
-            f = open("log.csv", 'a')
-            f.write(log)
-            f.close()
             # save the model
             print("\nSaving the model...")
             iteration += 1

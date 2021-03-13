@@ -9,12 +9,13 @@ HEAD_m = 0.04
 
 class Game:
     
-    def __init__(self, ID, height = 11, width = 11, snake_cnt = 4, health_dec = 1):
+    def __init__(self, ID, height = 11, width = 11, snake_cnt = 4, health_dec = 1, food_spawn_chance = 0.15):
         self.id = ID
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
         self.health_dec = health_dec
+        self.food_spawn_chance = food_spawn_chance
         self.rewards = [None]*snake_cnt
         
         # standard starting board positions (in order) for 7x7, 11x11, and 19x19
@@ -79,11 +80,10 @@ class Game:
     Args:
         moves: a list of moves the snakes will make
         show: weather to draw the game board in "replay.rep"
-        food_spawn_chance: the chance of a food spawns
     Return:
         0 if the game continues or the rewards list if the game ends
     """
-    def tic(self, moves, show = False, food_spawn_chance = 0.15):
+    def tic(self, moves, show = False):
         snakes = self.snakes
         # execute moves
         for i in range(len(snakes)):
@@ -126,10 +126,8 @@ class Game:
                 self.food_eaten += 1
         
         # spawn food
-        if food_spawn_chance > 0.0:
-            if len(self.food) == 0:
-               food_spawn_chance = 1.0
-            if random() <= food_spawn_chance:
+        if self.food_spawn_chance > 0.0:
+            if len(self.food) == 0 or random() <= self.food_spawn_chance:
                 try:
                     food = choice(tuple(self.empty_positions))
                     self.food.add(food)
@@ -264,7 +262,8 @@ class Game:
         a deep copy of the game
     """
     def subgame(self, subgame_id):
-        game = Game(subgame_id, self.height, self.width, self.snake_cnt, self.health_dec)
+        # subgames don't spawn food
+        game = Game(subgame_id, self.height, self.width, self.snake_cnt, self.health_dec, 0.0)
         game.last_moves = {i: self.last_moves[i] for i in range(self.snake_cnt)}
         game.empty_positions = {(yx[0], yx[1]) for yx in self.empty_positions}
         game.snakes = [snake.copy() for snake in self.snakes]
