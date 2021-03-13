@@ -16,7 +16,7 @@ class Agent:
             self.records = []
             self.values = []
     
-    def make_moves(self, games, ids):
+    def make_moves(self, games, ids, printing = False):
         # the index of the value a game_id and a snake_id corespond to
         value_index = {}
         for i in range(len(ids)):
@@ -35,7 +35,7 @@ class Agent:
                 subgame_id += 1
         MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames)
         MCTS = MPGameRunner(game_cnt = len(subgames), games = subgames)
-        rewards = MCTS.run(MCTSAlice, MCTS_depth = self.MCTS_depth, printing = True)
+        rewards = MCTS.run(MCTSAlice, MCTS_depth = self.MCTS_depth, printing = printing)
         V = [array([0.0]*3, dtype = float32) for _ in range(len(ids))]
         for subgame_id in MCTSAlice.values:
             game_id = parent_game[subgame_id]
