@@ -9,7 +9,7 @@ from utils.mp_game_runner import MPGameRunner
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
-                 self_play_games = 128,
+                 self_play_games = 256,
                  MCTS_breadth = 16,
                  MCTS_depth = 4,
                  game_board_height = 11,
