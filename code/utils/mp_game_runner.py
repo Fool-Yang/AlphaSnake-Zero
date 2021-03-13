@@ -67,8 +67,9 @@ class MPGameRunner:
                     kills.add(game_id)
             for game_id in kills:
                 del games[game_id]
-            if printing and MCTS_depth is None:
-                print("Turn finished. Total time spent:", time() - t0)
+            if MCTS_depth is None:
+                if printing:
+                    print("Turn finished. Total time spent:", time() - t0)
             elif turn >= MCTS_depth:
                 for game_id in games:
                     rewards[game_id] = games[game_id].rewards
