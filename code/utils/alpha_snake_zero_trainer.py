@@ -10,14 +10,18 @@ class AlphaSnakeZeroTrainer:
     
     def __init__(self,
                  self_play_games = 128,
-                 height = 11,
-                 width = 11,
+                 MCTS_breadth = 16,
+                 MCTS_depth = 4,
+                 game_board_height = 11,
+                 game_board_width = 11,
                  snake_cnt = 4,
                  TPU = None):
         
         self.self_play_games = self_play_games
-        self.height = height
-        self.width = width
+        self.MCTS_breadth = MCTS_breadth
+        self.MCTS_depth = MCTS_depth
+        self.height = game_board_height
+        self.width = game_board_width
         self.snake_cnt = snake_cnt
         self.TPU = TPU
     
@@ -38,7 +42,7 @@ class AlphaSnakeZeroTrainer:
             # self play
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
-            Alice = Agent(nnet, 3 + iteration, True)
+            Alice = Agent(nnet, 3 + iteration, True, self.MCTS_breadth, self.MCTS_depth)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             winner_ids = gr.run(Alice, printing = True)
             # collect training examples
