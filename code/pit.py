@@ -15,9 +15,7 @@ iteration = int(input("Enter the starting generation (the first champion):\n"))
 nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
 Alice = Agent(nnet)
 Alice_snake_cnt = snake_cnt//2
-f = open("champions.csv", 'w')
-f.write("Model name, Score against the previous champion\n")
-f.write(model_name + str(iteration) + ", N/A\n")
+f = open("pit.txt", 'w')
 f.close()
 iteration += 1
 while True:
@@ -29,7 +27,8 @@ while True:
         loss = 0.0
         t0 = time()
         gr = MPGameRunner(height, width, snake_cnt, 1, pit_games)
-        print("\nRunning games...")
+        print("A new challenger,", model_name + str(iteration))
+        print("Running games...")
         winner_ids = gr.run(Alice, Bob, Alice_snake_cnt)
         for winner_id in winner_ids:
             if winner_id is None:
@@ -42,14 +41,16 @@ while True:
         score = win/(win + loss)
         if score > threshold:
             Alice = Bob
-            print("Iteration", iteration, "beats the previouse one. score =", score, "\nIt is the new champion!")
-            f = open("champions.csv", 'a')
-            f.write(model_name + str(iteration) + ", " + str(score) + '\n')
+            f = open("pit.txt", 'a')
+            f.write("Iteration " + str(iteration) + " beats the previouse one. score = "
+                    + str(score) + ". It is the new champion!\n")
             f.close()
         else:
-            print("Iteration", iteration, "failed to beat the previouse one. score =", score)
+            f = open("pit.txt", 'a')
+            f.write("Iteration " + str(iteration) + " failed to beat the previouse one. score = "
+                    + str(score) + ".\n")
+            f.close()
         print("Competing time", time() - t0)
         iteration += 1
-        print("The next challenger will be", model_name + str(iteration))
     except OSError:
         sleep(10)

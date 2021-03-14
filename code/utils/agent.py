@@ -22,6 +22,7 @@ class Agent:
                 value_index[ids[i][0]][ids[i][1]] = i
             except KeyError:
                 value_index[ids[i][0]] = {ids[i][1]: i}
+        
         # make many subgames for each game
         parent_game = {}
         subgames = {}
@@ -39,9 +40,12 @@ class Agent:
                 parent_game[subgame_id] = game_id
                 subgames[subgame_id] = game.subgame(subgame_id)
                 subgame_id += 1
+        
+        # run MCTS subgames
         MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames)
         MCTS = MCTSMPGameRunner(subgames)
         rewards = MCTS.run(MCTSAlice, MCTS_depth)
+        
         # get Q value based on the subgames' stats
         V = [array([0.0]*3, dtype = float32) for _ in range(len(ids))]
         for subgame_id in MCTSAlice.values:
@@ -60,6 +64,7 @@ class Agent:
                 V[value_index[game_id][snake_id]] += v[0]
         for i in range(len(V)):
             V[i] /= self.MCTS_breadth
+        
         # training mode (exlporative)
         if self.training:
             pmfs = [self.softermax(v) for v in V]
