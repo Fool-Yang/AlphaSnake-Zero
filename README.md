@@ -33,8 +33,8 @@ Run test_pit.py to run a large number of games between 2 models and observe the 
 *Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
 
 *Updates:*</br>
-*1. AlphaZero's algorithm is introduced where the pit is no longer part of the training.*</br>
-*2. The game state is now 21x21x4, where the 4th layer contains the health of each snake. Food is now valued 1.0. All head, wall and body values are negated.*</br>
-*3. The MPGameRunner will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*</br>
-*4. A randomized synchronous parallel MCTS is implemented.*</br>
+*1. AlphaZero's algorithm is introduced where the pit is no longer part of the training.*\
+*2. The game state is now 21x21x4, where the 4th layer contains the health of each snake. Food is now valued 1.0. All head, wall and body values are negated.*\
+*3. The MPGameRunner will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*\
+*4. A randomized synchronous parallel MCTS is implemented.*\
 *5. Cache memory is used to avoid any recalculation of the Q values of a state.*
