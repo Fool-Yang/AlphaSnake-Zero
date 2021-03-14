@@ -28,7 +28,7 @@ Run test_models.py to watch some games played by the model.
 
 Run test_pit.py to run a large number of games between 2 models and observe the stats.
 
-##### WARNING: Deep learning is computationally intense. For the default parameter settings to work, you need at least 16GB of RAM and a 3.1GHz CPU with 4 cores. It's also recommended to use a TPU. If it is taking too long or causing memory leaks, try to reduce the self_play_games parameter in "train.py".
+##### WARNING: Deep learning is computationally intense. For the default parameter settings to work, you need at least 16GB of RAM and a 3.1GHz CPU with 4 cores. It's also recommended to use a TPU. If it is taking too long or causing memory leaks, try to reduce the self_play_games, max_MCTS_depth and MCTS_breadth_factor in "train.py".
 
 *Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
 
