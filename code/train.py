@@ -7,6 +7,7 @@ game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
 self_play_games = 256
+max_MCTS_depth = 8
 
 try:
     # when running on Google Cloud
@@ -29,5 +30,6 @@ if start == 0:
     ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
-Trainer = AlphaSnakeZeroTrainer(game_board_height, game_board_width, number_of_snakes, self_play_games, TPU)
+Trainer = AlphaSnakeZeroTrainer(game_board_height, game_board_width, number_of_snakes,
+                                self_play_games, max_MCTS_depth, TPU)
 Trainer.train(ANNet, name = name, iteration = start)

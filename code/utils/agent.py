@@ -5,10 +5,11 @@ from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 10, training = False):
+    def __init__(self, nnet, softmax_base = 10, training = False, max_MCTS_depth = 8):
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.training = training
+        self.max_MCTS_depth = max_MCTS_depth
         self.cached_values = {}
         self.total_rewards = {}
         self.visit_cnts = {}
@@ -32,8 +33,8 @@ class Agent:
             game = games[game_id]
             # calculate a good MCTS depth and breadth
             snake_cnt = len(game.snakes)
-            depth = 8//(snake_cnt - 1)
-            breadth = 2*snake_cnt*depth
+            depth = self.max_MCTS_depth//(snake_cnt - 1)
+            breadth = 4*snake_cnt*depth
             MCTS_depth[game_id] = depth
             MCTS_breadth[game_id] = breadth
             for _ in range(breadth):
