@@ -31,3 +31,13 @@ Run test_pit.py to run a large number of games between 2 models and observe the 
 ##### WARNING: Deep learning is computationally intense. For the default parameter settings to work, you need at least 16GB of RAM and a 3.1GHz CPU with 4 cores. It's also recommended to use a TPU. If it is taking too long or causing memory leaks, try to reduce the self_play_games parameter in "train.py".
 
 *Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
+
+*Updates:*
+
+*1. AlphaZero's algorithm is introduced where the pit is no longer part of the training.*
+
+*3. The MPGameRunner will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*
+
+*4. A randomized synchronous parallel MCTS is implemented.*
+
+*5. Cache memory is used to avoid any recalculation of the Q values of a state.*
