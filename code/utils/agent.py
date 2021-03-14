@@ -144,23 +144,23 @@ class MCTSAgent(Agent):
                     # a new state to be stored
                     cached_values[key] = None
                 i += 1
-        
+
         # calculate values using the net
-        calculated_V = self.nnet.v(all_states)
-        
-        # assign values calculated by the net and store them into the cache
-        i = 0
-        j = 0
-        while i < len(V):
-            if V[i] is None:
-                if cached_values[keys[i]] is None:
-                    cached_values[keys[i]] = calculated_V[j]
-                    # the calculated Q values will be a prior
-                    total_rewards[keys[i]] = calculated_V[j]
-                    visit_cnts[keys[i]] = array([1.0, 1.0, 1.0], dtype = float32)
-                    j += 1
-                V[i] = cached_values[keys[i]]
-            i += 1
+        if all_states:
+            calculated_V = self.nnet.v(all_states)
+            # assign values calculated by the net and store them into the cache
+            i = 0
+            j = 0
+            while i < len(V):
+                if V[i] is None:
+                    if cached_values[keys[i]] is None:
+                        # the calculated Q values will be a prior
+                        total_rewards[keys[i]] = calculated_V[j]
+                        visit_cnts[keys[i]] = array([1.0, 1.0, 1.0], dtype = float32)
+                        cached_values[keys[i]] = total_rewards[keys[i]]/visit_cnts[keys[i]]
+                        j += 1
+                    V[i] = cached_values[keys[i]]
+                i += 1
         
         # make randomized moves
         pmfs = [self.softermax(v) for v in V]
