@@ -20,7 +20,7 @@ TensorFlow 2.1.0
 ## Instructions:
 Go to the "code" folder and run train.py to start training models. It will ask you to enter things. If you enter a starting iteration number greater than 0, it will try to start using the existing model (e.g. if you enter the model name "MySnake", and generation number "7", it will try to open the file "MySnake7.h5" in the "models" folder and start training). Otherwise, it will create a new model and start training. All models will be stored in the "models" folder as .h5 files. "log.csv" will store historical stats of the models.
 
-If you want to change the neural network structure or the optimizer, modify it in "utils/alpha_nnet.py". You should not modify anything other than "alpha_nnet.py" and "alpha_snake_zero_trainer.py".
+If you want to change the neural network structure or the optimizer, modify it in "utils/alpha_nnet.py". You should not modify anything else in the "utils" folder.
 
 Run pit.py to see competition results between different generations. If a generation beats the last champion it will become the new champion. Since now the algorithm is shifted to the AlphaZero's algorithm, the pit phase is no longer part of the training. You don't have to run pit.py. It only gives you information about the training results. The list of champions will be stored in "champions.csv".
 
@@ -28,6 +28,6 @@ Run test_models.py to watch some games played by the model.
 
 Run test_pit.py to run a large number of games between 2 models and observe the stats.
 
-##### WARNING: Deep learning is computationally intense. For the default parameter settings to work, you need at least 16GB of RAM and a 3.1GHz CPU with 4 cores. It's also recommended to use a TPU. If it is taking too long or causing memory leaks, try to reduce the self_play_games parameter for the alpha_snake_zero_trainer.
+##### WARNING: Deep learning is computationally intense. For the default parameter settings to work, you need at least 16GB of RAM and a 3.1GHz CPU with 4 cores. It's also recommended to use a TPU. If it is taking too long or causing memory leaks, try to reduce the self_play_games parameter in "train.py".
 
 *Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
