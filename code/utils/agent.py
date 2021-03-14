@@ -143,8 +143,6 @@ class MCTSAgent(Agent):
                     all_states.append(state)
                     # a new state to be stored
                     cached_values[key] = None
-                    total_rewards[key] = array([0.0, 0.0, 0.0], dtype = float32)
-                    visit_cnts[key] = array([0.0, 0.0, 0.0], dtype = float32)
                 i += 1
         
         # calculate values using the net
@@ -157,6 +155,9 @@ class MCTSAgent(Agent):
             if V[i] is None:
                 if cached_values[keys[i]] is None:
                     cached_values[keys[i]] = calculated_V[j]
+                    # the calculated Q values will be a prior
+                    total_rewards[keys[i]] = calculated_V[j]
+                    visit_cnts[keys[i]] = array([1.0, 1.0, 1.0], dtype = float32)
                     j += 1
                 V[i] = cached_values[keys[i]]
             i += 1
@@ -171,9 +172,9 @@ class MCTSAgent(Agent):
             my_keys = self.keys[game_id][snake_id]
             my_moves = self.moves[game_id][snake_id]
             # back up
-            for i in range(len(my_keys) - 1, -1, -1):
-                last_key = my_keys[i]
-                last_move = my_moves[i]
+            for j in range(len(my_keys) - 1, -1, -1):
+                last_key = my_keys[j]
+                last_move = my_moves[j]
                 visit_cnts[last_key][last_move] += 1.0
                 total_rewards[last_key][last_move] += max(V[i])
                 cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
