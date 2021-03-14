@@ -13,6 +13,8 @@ class AlphaSnakeZeroTrainer:
                  width = 11,
                  snake_cnt = 4,
                  self_play_games = 256,
+                 max_MCTS_depth = 8,
+                 max_MCTS_breadth = ,
                  TPU = None):
         
         self.self_play_games = self_play_games
@@ -26,8 +28,8 @@ class AlphaSnakeZeroTrainer:
         # log
         if iteration == 0:
             f = open("log.csv", 'w')
-            f.write("iteration, wall_collision, body_collision, head_collision, \
-                    starvation, food_eaten, game_length\n")
+            f.write("iteration, wall_collision, body_collision, head_collision, "
+                    + "starvation, food_eaten, game_length\n")
             f.close()
         health_dec = 9
         while True:
