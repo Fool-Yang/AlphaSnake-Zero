@@ -65,7 +65,7 @@ class MPGameRunner:
             for game_id in kills:
                 del games[game_id]
             
-            print("Root game turn finished. Total time spent:", time() - t0, end = "\n")
+            print("Root game turn finished. Total time spent:", time() - t0, end = "\n\n")
         
         # log
         self.wall_collision /= self.game_cnt
