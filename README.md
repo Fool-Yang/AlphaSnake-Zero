@@ -22,7 +22,7 @@ Go to the "code" folder and run train.py to start training models. It will ask y
 
 If you want to change the neural network structure or the optimizer, modify it in "utils/alpha_nnet.py". You should not modify anything else in the "utils" folder.
 
-Run pit.py to see competition results between different generations. If a generation beats the last champion it will become the new champion. Since now the algorithm is shifted to the AlphaZero's algorithm, the pit phase is no longer part of the training. You don't have to run pit.py. It only gives you information about the training results. The list of champions will be stored in "champions.csv".
+Run pit.py to see competition results between different generations. If a generation beats the last champion it will become the new champion. Since now the algorithm is shifted to the AlphaZero's algorithm, the pit phase is no longer part of the training. You don't have to run pit.py. It only gives you information about the training results. The pit history will be stored in "pit.txt".
 
 Run test_models.py to watch some games played by the model.
 
