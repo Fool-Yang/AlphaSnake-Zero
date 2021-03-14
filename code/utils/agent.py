@@ -35,6 +35,8 @@ class Agent:
             # calculate a good MCTS depth and breadth
             snake_cnt = len(game.snakes)
             depth = self.max_MCTS_depth//(snake_cnt - 1)
+            if depth == 0:
+                depth = 1
             breadth = self.MCTS_breadth_factor*snake_cnt*depth
             MCTS_depth[game_id] = depth
             MCTS_breadth[game_id] = breadth
