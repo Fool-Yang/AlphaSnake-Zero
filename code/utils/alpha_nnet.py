@@ -44,10 +44,18 @@ class AlphaNNet:
             H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
+            H_shortcut = H
+            H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
+            
             H = Conv2D(2, (1, 1), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
-            Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(Flatten()(H)))
+            H = Activation('relu')(Dense(256, kernel_regularizer = l2(c))(Flatten()(H)))
+            
+            Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(H))
             
             self.v_net = Model(inputs = X, outputs = Y)
     

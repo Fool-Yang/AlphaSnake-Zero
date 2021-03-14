@@ -25,7 +25,7 @@ except:
 name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 start = int(input("Enter the starting generation (0 for creating a new model):\n"))
 if start == 0:
-    ANNet = AlphaNNet(input_shape = (game_board_height*2 - 1, game_board_width*2 - 1, 3))
+    ANNet = AlphaNNet(input_shape = (game_board_height*2 - 1, game_board_width*2 - 1, 4))
     ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
