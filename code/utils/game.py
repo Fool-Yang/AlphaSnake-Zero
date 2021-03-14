@@ -2,7 +2,6 @@ from random import sample, choice, random
 from numpy import array, float32, rot90
 
 WALL = -1.0
-MY_HEAD = 1.0
 # mutipliers
 HUNGER_m = 0.01
 SNAKE_m = 0.02
@@ -10,12 +9,14 @@ HEAD_m = 0.04
 
 class Game:
     
-    def __init__(self, ID, height = 11, width = 11, snake_cnt = 4, health_dec = 1):
+    def __init__(self, ID, height = 11, width = 11, snake_cnt = 4, health_dec = 1, food_spawn_chance = 0.15):
         self.id = ID
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
         self.health_dec = health_dec
+        self.food_spawn_chance = food_spawn_chance
+        self.rewards = [None]*snake_cnt
         
         # standard starting board positions (in order) for 7x7, 11x11, and 19x19
         # battlesnake uses random positions for any non-standard board size
@@ -57,12 +58,31 @@ class Game:
         self.starvation = 0
         self.food_eaten = 0
         self.game_length = 0
+
+    """
+    Get states for all snakes
+    Return:
+        a list of states for each snake
+    """
+    def get_states(self):
+        return [self.make_state(snake, self.last_moves[snake.id]) for snake in self.snakes]
     
-    def get_states_and_ids(self):
-        states = [self.make_state(snake, self.last_moves[snake.id]) for snake in self.snakes]
-        ids = [(self.id, snake.id) for snake in self.snakes]
-        return (states, ids)
+    """
+    Get game and snake ids
+    Return:
+        a list of pairs (this game's id, snake's id)
+    """
+    def get_ids(self):
+        return [(self.id, snake.id) for snake in self.snakes]
     
+    """
+    Move the game to the next turn
+    Args:
+        moves: a list of moves the snakes will make
+        show: weather to draw the game board in "replay.rep"
+    Return:
+        0 if the game continues or the rewards list if the game ends
+    """
     def tic(self, moves, show = False):
         snakes = self.snakes
         # execute moves
@@ -106,18 +126,15 @@ class Game:
                 self.food_eaten += 1
         
         # spawn food
-        if len(self.food) == 0:
-            chance = 1.0
-        else:
-            chance = 0.15
-        if random() <= chance:
-            try:
-                food = choice(tuple(self.empty_positions))
-                self.food.add(food)
-                self.empty_positions.remove(food)
-            except IndexError:
-                # Cannot choose from an empty set
-                pass
+        if self.food_spawn_chance > 0.0:
+            if len(self.food) == 0 or random() <= self.food_spawn_chance:
+                try:
+                    food = choice(tuple(self.empty_positions))
+                    self.food.add(food)
+                    self.empty_positions.remove(food)
+                except IndexError:
+                    # Cannot choose from an empty set
+                    pass
         
         if show:
             self.draw()
@@ -171,30 +188,30 @@ class Game:
                 except KeyError:
                     pass
             snakes.remove(snake)
+            self.rewards[snake.id] = -1.0
         
         if show:
             self.draw()
         
         self.game_length += 1
-        # return the winner if there is one
+        # return rewards if the game ends
         if len(snakes) <= 1:
-            return snakes[0].id if snakes else None
-        # return -1 if the game continues
+            if snakes:
+                self.rewards[snakes[0].id] = 1.0
+            return self.rewards
+        # return 0 if the game continues
         else:
-            return -1
+            return 0
     
+    """
+    Process the game data and translate them into a game state
+    Args:
+        you: a Snake object that represents this snake
+        last_move: the last move you made; one of {0, 1, 2, 3}
+    Return:
+        a grid that represents the game state for a snake
+    """
     def make_state(self, you, last_move):
-        """ Process the data and translate them into a grid
-        
-        Args:
-            you: a Snake object define by snake.py; represents this snake
-            last_move: the last move you made; one of {0, 1, 2, 3}
-        
-        Return:
-            grid: a grid that represents the game
-        
-        """
-        
         # gotta do the math to recenter the grid
         width = self.width * 2 - 1
         height = self.height * 2 - 1
@@ -227,7 +244,6 @@ class Game:
         
         # from this point, all positions are measured relative to our head
         head_y, head_x = you.head.position
-        board[head_y][head_x][0] = MY_HEAD
         for y in range(self.height):
             for x in range(self.width):
                 grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]
@@ -237,7 +253,29 @@ class Game:
         # k = 2 => rotate 180
         # k = 3 => rotate right
         return rot90(array(grid, dtype = float32), k = last_move)
-    
+
+    """
+    Copy the game
+    Args:
+        subgame_id: the game id of the created copy
+    Return:
+        a deep copy of the game
+    """
+    def subgame(self, subgame_id):
+        # subgames don't spawn food
+        game = Game(subgame_id, self.height, self.width, self.snake_cnt, self.health_dec, 0.0)
+        game.last_moves = {i: self.last_moves[i] for i in range(self.snake_cnt)}
+        game.empty_positions = {(yx[0], yx[1]) for yx in self.empty_positions}
+        game.snakes = [snake.copy() for snake in self.snakes]
+        game.food = {(yx[0], yx[1]) for yx in self.food}
+        game.heads = {snake.head.position: {snake} for snake in game.snakes}
+        game.bodies = {body for snake in game.snakes for body in snake}
+        game.rewards = self.rewards[:]
+        return game
+
+    """
+    Draw the game board in "replay.rep"
+    """
     def draw(self):
         board = [[0] * self.width for _ in range(self.height)]
         
@@ -323,6 +361,20 @@ class Snake:
         new_tail.prev_node = self.tail
         self.tail.next_node = new_tail
         self.tail = new_tail
+    
+    def copy(self):
+        snake = Snake(self.id, self.health, [(0, 0)])
+        snake.length = self.length
+        snake.head = Node(self.head.position)
+        snake.tail = snake.head
+        curr = self.head.next_node
+        while curr:
+            new_node = Node(curr.position)
+            new_node.prev_node = snake.tail
+            snake.tail.next_node = new_node
+            snake.tail = new_node
+            curr = curr.next_node
+        return snake
 
 class Node:
     

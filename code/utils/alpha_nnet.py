@@ -12,7 +12,7 @@ class AlphaNNet:
             self.v_net = load_model(model_name)
         elif input_shape:
             # regularization constant
-            c = 0.0001
+            c = 1e-5
             
             X = Input(input_shape)
             
@@ -44,20 +44,14 @@ class AlphaNNet:
             H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
-            H_shortcut = H
-            H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(H))
-            H = Conv2D(256, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
-            H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
-            
-            H = Conv2D(256, (1, 1), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Conv2D(2, (1, 1), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
             Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(Flatten()(H)))
             
             self.v_net = Model(inputs = X, outputs = Y)
     
-    def train(self, X, Y, epochs = 64, batch_size = 2048):
+    def train(self, X, Y, epochs = 32, batch_size = 2048):
         self.v_net.fit(array(X), array(Y), epochs = epochs, batch_size = batch_size)
     
     def v(self, X):
@@ -65,7 +59,11 @@ class AlphaNNet:
     
     def copy_and_compile(self, TPU = None):
         boundaries = [20, 40, 60, 80, 100]
-        values = [0.0001, 0.00005, 0.00002, 0.00001, 0.000005, 0.000002]
+        values = [0.0]*(len(boundaries) + 1)
+        n = 5e-6
+        for i in range(len(boundaries)):
+            values[i] = n
+            n *= 0.25
         if TPU:
             with TPU.scope():
                 # value

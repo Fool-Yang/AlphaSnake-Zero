@@ -1,6 +1,6 @@
-from utils.agent import Agent
+from utils.pit_agent import Agent
 from utils.alpha_nnet import AlphaNNet
-from utils.mp_game_runner import MPGameRunner
+from utils.pit_mp_game_runner import MPGameRunner
 
 from time import time
 
@@ -8,7 +8,7 @@ height = 11
 width = 11
 snake_cnt = 4
 health_dec = 1
-competeEps = 300
+competeEps = 100
 
 file_name1 = input("\nEnter the model 1 name:\n")
 file_name2 = input("\nEnter the model 2 name:\n")

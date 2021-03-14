@@ -19,52 +19,38 @@ class MPGameRunner:
         self.food_eaten = 0
         self.game_length = 0
     
-    # Alice and Bob are agents using different nets
-    def run(self, Alice, Bob = None, Alice_snake_cnt = None, printing = False):
+    # Alice is the agent
+    def run(self, Alice, MCTS_depth = None):
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
-        if Bob and Alice_snake_cnt is None:
-            Alice_snake_cnt = games[0].snake_cnt//2
-        winners = [None]*self.game_cnt
+        rewards = [None]*self.game_cnt
         turn = 0
+        # run all the games in parallel
         while games:
             turn += 1
-            if printing:
-                if len(games) == 1:
-                    print("Running the game. On turn", str(turn) + "...")
-                else:
-                    print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
-            if Bob:
-                states_A = []
-                ids_A = []
-                states_B = []
-                ids_B = []
-                for game_id in games:
-                    states, ids = games[game_id].get_states_and_ids()
-                    states_A += [states[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                    ids_A += [ids[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                    states_B += [states[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
-                    ids_B += [ids[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
-                moves = Alice.make_moves(states_A, ids_A) + Bob.make_moves(states_B, ids_B)
-                ids = ids_A + ids_B
+            # print information
+            if len(games) == 1:
+                print("Running the game. On turn", str(turn) + "...")
             else:
-                states = []
-                ids = []
-                for game_id in games:
-                    states_and_ids = games[game_id].get_states_and_ids()
-                    states += states_and_ids[0]
-                    ids += states_and_ids[1]
-                moves = Alice.make_moves(states, ids)
+                print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
+            
+            # ask for moves from the Agent
+            ids = []
+            for game_id in games:
+                ids += games[game_id].get_ids()
+            moves = Alice.make_moves(games, ids)
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(moves)):
                 moves_for_game[ids[i][0]].append(moves[i])
+            
+            # tic all games
             kills = set()
             for game_id in games:
                 game = games[game_id]
-                result = game.tic(moves_for_game[game_id], show)
+                result = game.tic(moves_for_game[game_id], show, 0.15)
                 # if game ended
-                if result != -1:
+                if result != 0:
                     # log
                     self.wall_collision += game.wall_collision
                     self.body_collision += game.body_collision
@@ -72,23 +58,13 @@ class MPGameRunner:
                     self.starvation += game.starvation
                     self.food_eaten += game.food_eaten
                     self.game_length += game.game_length
-                    winners[game_id] = result
+                    rewards[game_id] = result
                     kills.add(game_id)
-                # to speed up the competing process
-                # the team with snakes left wins
-                elif Bob:
-                    snakes = games[game_id].snakes
-                    A = False
-                    B = False
-                    for snake in snakes:
-                        A = A or snake.id < Alice_snake_cnt
-                        B = B or snake.id >= Alice_snake_cnt
-                    if not A or not B:
-                        winners[game_id] = snakes[0].id
-                        kills.add(game_id)
+            # remove games that ended
             for game_id in kills:
                 del games[game_id]
-            if printing:
+            
+            if MCTS_depth is None:
                 print("Turn finished. Total time spent:", time() - t0)
         
         # log
@@ -98,4 +74,39 @@ class MPGameRunner:
         self.starvation /= self.game_cnt
         self.food_eaten /= self.game_cnt
         self.game_length /= self.game_cnt
-        return winners
+        return rewards
+
+class MCTSMPGameRunner(MPGameRunner):
+
+    def __init__(self, games):
+        self.games = games
+    
+    # MCTSAlice is the agent
+    def run(self, MCTSAlice, MCTS_depth):
+        games = self.games
+        rewards = [None]*len(games)
+        # run all the games in parallel
+        while games:
+            # ask for moves from the Agent
+            ids = []
+            for game_id in games:
+                ids += games[game_id].get_ids()
+            moves = MCTSAlice.make_moves(games, ids)
+            moves_for_game = {game_id: [] for game_id in games}
+            for i in range(len(moves)):
+                moves_for_game[ids[i][0]].append(moves[i])
+            
+            # tic all games
+            kills = set()
+            for game_id in games:
+                game = games[game_id]
+                result = game.tic(moves_for_game[game_id], show)
+                # if game ended or MCTS subgame max length reached
+                if result != 0 or game.game_length >= MCTS_depth[game_id]:
+                    rewards[game_id] = game.rewards
+                    kills.add(game_id)
+            # remove games that ended
+            for game_id in kills:
+                del games[game_id]
+        
+        return rewards
