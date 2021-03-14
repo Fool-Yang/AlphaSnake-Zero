@@ -15,41 +15,43 @@ class Agent:
             self.values = []
     
     def make_moves(self, games, ids):
-        # the index of the value a game_id and a snake_id corespond to
-        value_index = {}
-        for i in range(len(ids)):
-            try:
-                value_index[ids[i][0]][ids[i][1]] = i
-            except KeyError:
-                value_index[ids[i][0]] = {ids[i][1]: i}
-        
         # make many subgames for each game
-        parent_game = {}
+        parent_games = {}
         subgames = {}
-        MCTS_depth = []
+        MCTS_depth = {}
+        MCTS_breadth = {}
         subgame_id = 0
         for game_id in games:
             game = games[game_id]
             # calculate a good MCTS depth and breadth
             snake_cnt = len(game.snakes)
             depth = 8//(snake_cnt - 1)
-            MCTS_depth.append(depth)
-            MCTS_breadth = 2*snake_cnt*depth
-            for _ in range(MCTS_breadth):
+            breadth = 2*snake_cnt*depth
+            MCTS_depth[game_id] = depth
+            MCTS_breadth[game_id] = breadth
+            for _ in range(breadth):
                 # record the parent game's id
-                parent_game[subgame_id] = game_id
+                parent_games[subgame_id] = game_id
                 subgames[subgame_id] = game.subgame(subgame_id)
                 subgame_id += 1
         
         # run MCTS subgames
         MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames)
         MCTS = MCTSMPGameRunner(subgames)
-        rewards = MCTS.run(MCTSAlice, MCTS_depth)
+        rewards = MCTS.run(MCTSAlice, MCTS_depth, parent_games)
         
-        # get Q value based on the subgames' stats
         V = [array([0.0]*3, dtype = float32) for _ in range(len(ids))]
+        # the index of the value in V a (game_id, snake_id) coresponds to
+        value_index = {}
+        for i in range(len(ids)):
+            try:
+                value_index[ids[i][0]][ids[i][1]] = i
+            except KeyError:
+                value_index[ids[i][0]] = {ids[i][1]: i}
+        # set Q values based on the subgames' stats
         for subgame_id in MCTSAlice.values:
-            game_id = parent_game[subgame_id]
+            game_id = parent_games[subgame_id]
+            breadth = MCTS_breadth[game_id]
             for snake_id in MCTSAlice.values[subgame_id]:
                 v = MCTSAlice.values[subgame_id][snake_id]
                 m = MCTSAlice.moves[subgame_id][snake_id]
@@ -61,9 +63,7 @@ class Agent:
                 for i in range(len(v) - 1, -1, -1):
                     v[i][m[i]] = last_max
                     last_max = max(v[i])
-                V[value_index[game_id][snake_id]] += v[0]
-        for i in range(len(V)):
-            V[i] /= self.MCTS_breadth
+                V[value_index[game_id][snake_id]] += v[0]/breadth
         
         # training mode (exlporative)
         if self.training:

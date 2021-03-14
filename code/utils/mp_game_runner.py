@@ -25,15 +25,16 @@ class MPGameRunner:
         games = self.games
         show = self.game_cnt == 1
         rewards = [None]*self.game_cnt
-        turn = 0
+                
         # run all the games in parallel
+        turn = 0
         while games:
             turn += 1
             # print information
             if len(games) == 1:
-                print("Running the game. On turn", str(turn) + "...")
+                print("Running the root game. On turn", str(turn) + "...")
             else:
-                print("Concurrently running", len(games), "games. On turn", str(turn) + "...")
+                print("Concurrently running", len(games), "root games. On turn", str(turn) + "...")
             
             # ask for moves from the Agent
             ids = []
@@ -48,7 +49,7 @@ class MPGameRunner:
             kills = set()
             for game_id in games:
                 game = games[game_id]
-                result = game.tic(moves_for_game[game_id], show, 0.15)
+                result = game.tic(moves_for_game[game_id], show)
                 # if game ended
                 if result != 0:
                     # log
@@ -64,8 +65,7 @@ class MPGameRunner:
             for game_id in kills:
                 del games[game_id]
             
-            if MCTS_depth is None:
-                print("Turn finished. Total time spent:", time() - t0)
+            print("Root game turn finished. Total time spent:", time() - t0, end = "\n")
         
         # log
         self.wall_collision /= self.game_cnt
@@ -82,11 +82,18 @@ class MCTSMPGameRunner(MPGameRunner):
         self.games = games
     
     # MCTSAlice is the agent
-    def run(self, MCTSAlice, MCTS_depth):
+    def run(self, MCTSAlice, MCTS_depth, parent_games):
+        t0 = time()
         games = self.games
         rewards = [None]*len(games)
+        
         # run all the games in parallel
+        turn = 0
         while games:
+            turn += 1
+            # print information
+            print("Running", len(games), "MCTS. On step", str(turn) + "...")
+            
             # ask for moves from the Agent
             ids = []
             for game_id in games:
@@ -100,13 +107,15 @@ class MCTSMPGameRunner(MPGameRunner):
             kills = set()
             for game_id in games:
                 game = games[game_id]
-                result = game.tic(moves_for_game[game_id], show)
+                result = game.tic(moves_for_game[game_id])
                 # if game ended or MCTS subgame max length reached
-                if result != 0 or game.game_length >= MCTS_depth[game_id]:
+                if result != 0 or game.game_length >= MCTS_depth[parent_games[game_id]]:
                     rewards[game_id] = game.rewards
                     kills.add(game_id)
             # remove games that ended
             for game_id in kills:
                 del games[game_id]
+            
+            print("Step finished. Total time spent:", time() - t0)
         
         return rewards
