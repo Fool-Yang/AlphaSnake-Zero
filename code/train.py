@@ -7,7 +7,10 @@ game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
 self_play_games = 256
+# MCTS depth = max_MCTS_depth/(alive_snake_cnt - 1)
+# MCTS breadth = MCTS_breadth_factor*alive_snake_cnt*depth
 max_MCTS_depth = 8
+MCTS_breadth_factor = 4
 
 try:
     # when running on Google Cloud
@@ -31,5 +34,5 @@ if start == 0:
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
 Trainer = AlphaSnakeZeroTrainer(game_board_height, game_board_width, number_of_snakes,
-                                self_play_games, max_MCTS_depth, TPU)
+                                self_play_games, max_MCTS_depth, MCTS_breadth_factor, TPU)
 Trainer.train(ANNet, name = name, iteration = start)
