@@ -176,7 +176,7 @@ class MCTSAgent(Agent):
                 last_key = my_keys[j]
                 last_move = my_moves[j]
                 visit_cnts[last_key][last_move] += 1.0
-                total_rewards[last_key][last_move] += max(V[i])
+                total_rewards[last_key][last_move] += self.softermax(V[i])@V[i]
                 cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
                                                       /visit_cnts[last_key][last_move])
             my_keys.append(keys[i])
