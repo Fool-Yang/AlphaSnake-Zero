@@ -5,7 +5,7 @@ from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 10, training = False,
+    def __init__(self, nnet, softmax_base = 100, training = False,
                  max_MCTS_depth = 8, max_MCTS_breadth = 4, MCTS_epoch = 8):
         self.nnet = nnet
         self.softmax_base = softmax_base
@@ -176,7 +176,7 @@ class MCTSAgent(Agent):
                 last_key = my_keys[j]
                 last_move = my_moves[j]
                 visit_cnts[last_key][last_move] += 1.0
-                total_rewards[last_key][last_move] += self.softermax(V[i])@V[i]
+                total_rewards[last_key][last_move] += pmfs[i]@V[i]
                 cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
                                                       /visit_cnts[last_key][last_move])
             my_keys.append(keys[i])
