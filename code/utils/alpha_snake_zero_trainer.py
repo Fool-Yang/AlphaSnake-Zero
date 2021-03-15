@@ -14,7 +14,8 @@ class AlphaSnakeZeroTrainer:
                  snake_cnt = 4,
                  self_play_games = 256,
                  max_MCTS_depth = 8,
-                 MCTS_breadth_factor = 4,
+                 max_MCTS_breadth = 8,
+                 MCTS_epoch = 4,
                  TPU = None):
         
         self.height = height
@@ -22,7 +23,8 @@ class AlphaSnakeZeroTrainer:
         self.snake_cnt = snake_cnt
         self.self_play_games = self_play_games
         self.max_MCTS_depth = max_MCTS_depth
-        self.MCTS_breadth_factor = MCTS_breadth_factor
+        self.max_MCTS_breadth = max_MCTS_breadth
+        self.MCTS_epoch = MCTS_epoch
         self.TPU = TPU
     
     def train(self, nnet, name = "AlphaSnake", iteration = 0):
@@ -43,7 +45,7 @@ class AlphaSnakeZeroTrainer:
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
             # the second arg is the softmax base (a snake with lower base is more explorative)
-            Alice = Agent(nnet, 3 + iteration, True, self.max_MCTS_depth, self.MCTS_breadth_factor)
+            Alice = Agent(nnet, 3 + iteration, True, self.max_MCTS_depth, self.max_MCTS_breadth)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             gr.run(Alice)
             # log
