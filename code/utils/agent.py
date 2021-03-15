@@ -5,12 +5,14 @@ from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 10, training = False, max_MCTS_depth = 8, MCTS_breadth_factor = 4):
+    def __init__(self, nnet, softmax_base = 10, training = False,
+                 max_MCTS_depth = 8, max_MCTS_breadth = 8, MCTS_epoch = 4):
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.training = training
         self.max_MCTS_depth = max_MCTS_depth
-        self.MCTS_breadth_factor = MCTS_breadth_factor
+        self.max_MCTS_breadth = max_MCTS_breadth
+        self.MCTS_epoch = MCTS_epoch
         self.cached_values = {}
         self.total_rewards = {}
         self.visit_cnts = {}
@@ -24,33 +26,41 @@ class Agent:
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
         
-        # make many subgames for each game
-        parent_games = {}
-        subgames = {}
-        MCTS_depth = {}
-        MCTS_breadth = {}
-        subgame_id = 0
-        for game_id in games:
-            game = games[game_id]
-            # calculate a good MCTS depth and breadth
-            snake_cnt = len(game.snakes)
-            depth = self.max_MCTS_depth//(snake_cnt - 1)
-            if depth == 0:
-                depth = 1
-            breadth = self.MCTS_breadth_factor*snake_cnt*depth
-            MCTS_depth[game_id] = depth
-            MCTS_breadth[game_id] = breadth
-            for _ in range(breadth):
-                # record the parent game's id
-                parent_games[subgame_id] = game_id
-                subgames[subgame_id] = game.subgame(subgame_id)
-                subgame_id += 1
-        
-        # run MCTS subgames
-        MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
-                              cached_values, total_rewards, visit_cnts)
-        MCTS = MCTSMPGameRunner(subgames)
-        rewards = MCTS.run(MCTSAlice, MCTS_depth, parent_games)
+        for _ in range(self.MCTS_epoch):
+            # make many subgames for each game
+            MCTS_depth = {}
+            parent_games = {}
+            subgames = {}
+            subgame_id = 0
+            for game_id in games:
+                depth = 8//(len(games[game_id].snakes) - 1)
+                MCTS_depth[game_id] = depth
+                for _ in range(self.max_MCTS_breadth):
+                    parent_games[subgame_id] = game_id
+                    subgames[subgame_id] = games[game_id].subgame(subgame_id)
+                    subgame_id += 1
+            
+            # run MCTS subgames
+            MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
+                                  cached_values, total_rewards, visit_cnts)
+            MCTS = MCTSMPGameRunner(subgames)
+            rewards = MCTS.run(MCTSAlice, MCTS_depth, parent_games)
+            # set Q values based on the subgames' stats
+            for subgame_id in MCTSAlice.keys:
+                game_id = parent_games[subgame_id]
+                for snake_id in MCTSAlice.keys[subgame_id]:
+                    my_keys = MCTSAlice.keys[subgame_id][snake_id]
+                    my_moves = MCTSAlice.moves[subgame_id][snake_id]
+                    # update the last edge stat if the reward was assigned to the snake
+                    if not rewards[subgame_id][snake_id] is None:
+                        # back up
+                        for i in range(len(my_keys) - 1, -1, -1):
+                            last_key = my_keys[i]
+                            last_move = my_moves[i]
+                            visit_cnts[last_key][last_move] += 1.0
+                            total_rewards[last_key][last_move] += rewards[subgame_id][snake_id]
+                            cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
+                                                                  /visit_cnts[last_key][last_move])
         
         V = [None]*len(ids)
         # the index of the value in V a (game_id, snake_id) coresponds to
@@ -60,25 +70,11 @@ class Agent:
                 value_index[ids[i][0]][ids[i][1]] = i
             except KeyError:
                 value_index[ids[i][0]] = {ids[i][1]: i}
-        # set Q values based on the subgames' stats
         for subgame_id in MCTSAlice.keys:
-            game_id = parent_games[subgame_id]
-            breadth = MCTS_breadth[game_id]
-            for snake_id in MCTSAlice.keys[subgame_id]:
-                my_keys = MCTSAlice.keys[subgame_id][snake_id]
-                my_moves = MCTSAlice.moves[subgame_id][snake_id]
-                # update the last edge stat if the reward was assigned to the snake
-                if not rewards[subgame_id][snake_id] is None:
-                    # back up
-                    for i in range(len(my_keys) - 1, -1, -1):
-                        last_key = my_keys[i]
-                        last_move = my_moves[i]
-                        visit_cnts[last_key][last_move] += 1.0
-                        total_rewards[last_key][last_move] += rewards[subgame_id][snake_id]
-                        cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
-                                                              /visit_cnts[last_key][last_move])
-                V[value_index[game_id][snake_id]] = cached_values[my_keys[0]]
-        
+                game_id = parent_games[subgame_id]
+                for snake_id in MCTSAlice.keys[subgame_id]:
+                    my_keys = MCTSAlice.keys[subgame_id][snake_id]
+                    V[value_index[game_id][snake_id]] = cached_values[my_keys[0]]
         # training mode (exlporative)
         if self.training:
             pmfs = [self.softermax(v) for v in V]
@@ -148,7 +144,7 @@ class MCTSAgent(Agent):
                     # a new state to be stored
                     cached_values[key] = None
                 i += 1
-
+        
         # calculate values using the net
         if all_states:
             calculated_V = self.nnet.v(all_states)
