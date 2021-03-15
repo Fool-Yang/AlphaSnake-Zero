@@ -4,7 +4,7 @@ from utils.pit_mp_game_runner import MPGameRunner
 
 from time import time, sleep
 
-pit_games = 200
+pit_games = 300
 threshold = 0.51
 height = 11
 width = 11

@@ -6,10 +6,10 @@ from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
 game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
-self_play_games = 256
+self_play_games = 512
 max_MCTS_depth = 8
-max_MCTS_breadth = 8
-MCTS_epoch = 4
+max_MCTS_breadth = 4
+MCTS_epoch = 8
 
 try:
     # when running on Google Cloud
@@ -32,6 +32,7 @@ if start == 0:
     ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
-Trainer = AlphaSnakeZeroTrainer(game_board_height, game_board_width, number_of_snakes,
-                                self_play_games, max_MCTS_depth, max_MCTS_breadth, MCTS_epoch, TPU)
+Trainer = AlphaSnakeZeroTrainer(max_MCTS_depth, max_MCTS_breadth, MCTS_epoch,
+                                game_board_height, game_board_width, number_of_snakes,
+                                self_play_games, TPU)
 Trainer.train(ANNet, name = name, iteration = start)
