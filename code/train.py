@@ -6,9 +6,9 @@ from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
 game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
-self_play_games = 512
+self_play_games = 256
 max_MCTS_depth = 8
-max_MCTS_breadth = 64
+max_MCTS_breadth = 32
 
 try:
     # when running on Google Cloud
