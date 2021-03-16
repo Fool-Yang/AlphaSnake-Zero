@@ -8,8 +8,7 @@ game_board_width = 11
 number_of_snakes = 4
 self_play_games = 512
 max_MCTS_depth = 8
-max_MCTS_breadth = 4
-MCTS_epoch = 8
+max_MCTS_breadth = 64
 
 try:
     # when running on Google Cloud
