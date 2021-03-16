@@ -65,7 +65,7 @@ class MPGameRunner:
             for game_id in kills:
                 del games[game_id]
             
-            print("Root game turn finished. Total time spent:", time() - t0, end = "\n\n")
+            print("Root game turn", str(turn), "finished. Total time spent:", time() - t0, end = "\n\n")
         
         # log
         self.wall_collision /= self.game_cnt
@@ -86,14 +86,12 @@ class MCTSMPGameRunner(MPGameRunner):
         t0 = time()
         games = self.games
         rewards = [None]*len(games)
+        print("Running", len(games), "MCTS...")
         
         # run all the games in parallel
         turn = 0
         while games:
             turn += 1
-            # print information
-            print("Running", len(games), "MCTS. On step", str(turn) + "...")
-            
             # ask for moves from the Agent
             ids = []
             for game_id in games:
@@ -115,7 +113,6 @@ class MCTSMPGameRunner(MPGameRunner):
             # remove games that ended
             for game_id in kills:
                 del games[game_id]
-            
-            print("Step finished. Total time spent:", time() - t0)
         
+        print("MCTS epoch finished. Time spent:", time() - t0)
         return rewards

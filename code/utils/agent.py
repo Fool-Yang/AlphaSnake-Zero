@@ -26,35 +26,35 @@ class Agent:
         visit_cnts = self.visit_cnts
         
         for _ in range(self.max_MCTS_breadth):
-            # make many subgames for each game
+            # make a subgame for each game
             MCTS_depth = {}
             subgames = {}
             for game_id in games:
-                depth = 8//(len(games[game_id].snakes) - 1)
-                MCTS_depth[game_id] = depth
-                subgames[subgame_id] = games[game_id].subgame(subgame_id)
+                game = games[game_id]
+                MCTS_depth[game_id] = 8//(len(game.snakes) - 1)
+                subgames[game_id] = game.subgame(game_id)
             
             # run MCTS subgames
             MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
                                   cached_values, total_rewards, visit_cnts)
             MCTS = MCTSMPGameRunner(subgames)
             rewards = MCTS.run(MCTSAlice, MCTS_depth)
-            # set Q values based on the subgames' stats
+            
+            # update the last edge stat if a reward was assigned to the snake
             for subgame_id in MCTSAlice.keys:
                 for snake_id in MCTSAlice.keys[subgame_id]:
                     my_keys = MCTSAlice.keys[subgame_id][snake_id]
                     my_moves = MCTSAlice.moves[subgame_id][snake_id]
-                    # update the last edge stat if the reward was assigned to the snake
                     if not rewards[subgame_id][snake_id] is None:
                         # back up
                         for i in range(len(my_keys) - 1, -1, -1):
-                            last_key = my_keys[i]
-                            last_move = my_moves[i]
-                            visit_cnts[last_key][last_move] += 1.0
-                            total_rewards[last_key][last_move] += rewards[subgame_id][snake_id]
-                            cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
-                                                                  /visit_cnts[last_key][last_move])
+                            key = my_keys[i]
+                            move = my_moves[i]
+                            visit_cnts[key][move] += 1.0
+                            total_rewards[key][move] += rewards[subgame_id][snake_id]
+                            cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
         
+        # set Q values based on the subgames' stats
         V = [None]*len(ids)
         # the index of the value in V a (game_id, snake_id) coresponds to
         value_index = {}
@@ -67,7 +67,8 @@ class Agent:
                 for snake_id in MCTSAlice.keys[subgame_id]:
                     my_keys = MCTSAlice.keys[subgame_id][snake_id]
                     V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
-        # training mode (exlporative)
+        
+        # make moves
         if self.training:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
@@ -174,12 +175,11 @@ class MCTSAgent(Agent):
             # back up
             average_reward = pmfs[i]@V[i]
             for j in range(len(my_keys) - 1, -1, -1):
-                last_key = my_keys[j]
-                last_move = my_moves[j]
-                visit_cnts[last_key][last_move] += 1.0
-                total_rewards[last_key][last_move] += average_reward
-                cached_values[last_key][last_move] = (total_rewards[last_key][last_move]
-                                                      /visit_cnts[last_key][last_move])
+                key = my_keys[j]
+                move = my_moves[j]
+                visit_cnts[key][move] += 1.0
+                total_rewards[key][move] += average_reward
+                cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
             my_keys.append(keys[i])
             my_moves.append(moves[i])
         return moves
