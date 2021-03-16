@@ -31,7 +31,7 @@ if start == 0:
     ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
-Trainer = AlphaSnakeZeroTrainer(max_MCTS_depth, max_MCTS_breadth, MCTS_epoch,
+Trainer = AlphaSnakeZeroTrainer(max_MCTS_depth, max_MCTS_breadth,
                                 game_board_height, game_board_width, number_of_snakes,
                                 self_play_games, TPU)
 Trainer.train(ANNet, name = name, iteration = start)
