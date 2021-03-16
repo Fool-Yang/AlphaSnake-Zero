@@ -61,9 +61,9 @@ class Agent:
                 value_index[ids[i][0]] = {ids[i][1]: i}
         # set Q values based on the subgames' stats
         for subgame_id in MCTSAlice.keys:
-                for snake_id in MCTSAlice.keys[subgame_id]:
-                    my_keys = MCTSAlice.keys[subgame_id][snake_id]
-                    V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
+            for snake_id in MCTSAlice.keys[subgame_id]:
+                my_keys = MCTSAlice.keys[subgame_id][snake_id]
+                V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
         
         # make moves
         if self.training:
