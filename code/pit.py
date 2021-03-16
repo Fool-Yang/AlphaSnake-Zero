@@ -13,7 +13,9 @@ snake_cnt = 4
 model_name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 iteration = int(input("Enter the starting generation (the first champion):\n"))
 nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
-print(model_name + str(iteration), "is set to be the baseline champion.")
+f = open("pit.txt", 'a')
+f.write(model_name + str(iteration) + " is set to be the baseline champion.")
+f.close()
 Alice = Agent(nnet)
 Alice_snake_cnt = snake_cnt//2
 iteration += 1
