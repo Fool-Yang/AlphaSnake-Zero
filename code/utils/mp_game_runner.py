@@ -83,10 +83,8 @@ class MCTSMPGameRunner(MPGameRunner):
     
     # MCTSAlice is the agent
     def run(self, MCTSAlice, MCTS_depth):
-        t0 = time()
         games = self.games
         rewards = {game_id: None for game_id in games}
-        print("Running", len(games), "MCTS...")
         
         # run all the games in parallel
         turn = 0
@@ -114,5 +112,4 @@ class MCTSMPGameRunner(MPGameRunner):
             for game_id in kills:
                 del games[game_id]
         
-        print("MCTS epoch finished. Time spent:", time() - t0)
         return rewards

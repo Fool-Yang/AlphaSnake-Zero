@@ -1,11 +1,12 @@
 from numpy import power, array, float32
 from numpy.random import choice
+from time import time
 
 from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 10, training = False,
+    def __init__(self, nnet, softmax_base = 100, training = False,
                  max_MCTS_depth = 8, max_MCTS_breadth = 32):
         self.nnet = nnet
         self.softmax_base = softmax_base
@@ -35,7 +36,10 @@ class Agent:
             MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
                                   cached_values, total_rewards, visit_cnts)
             MCTS = MCTSMPGameRunner(subgames)
+            t0 = time()
             rewards = MCTS.run(MCTSAlice, MCTS_depth)
+            if self.training:
+                print("MCTS epoch finished. Time spent:", time() - t0)
             
             # update the last edge stat if a reward was assigned to the snake
             for subgame_id in MCTSAlice.keys:
@@ -161,9 +165,19 @@ class MCTSAgent(Agent):
                     V[i] = cached_values[keys[i]]
                 i += 1
         
-        # make randomized moves
-        pmfs = [self.softermax(v) for v in V]
-        moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
+        # make moves
+        moves = []
+        for i in range(len(ids)):
+            ucb = -1.0
+            argmax = 0
+            P = self.softermax(V[i])
+            for j in range(3):
+                Q_U = V[i][j] + P[j]*(sum(visit_cnts[keys[i]]) - 3.0)**0.5/(visit_cnts[keys[i]][j])
+                if Q_U > ucb:
+                    ucb = Q_U
+                    argmax = j
+            moves.append(argmax)
+        
         # update MCTS edge stats
         for i in range(len(ids)):
             game_id = ids[i][0]
@@ -171,7 +185,7 @@ class MCTSAgent(Agent):
             my_keys = self.keys[game_id][snake_id]
             my_moves = self.moves[game_id][snake_id]
             # back up
-            average_reward = pmfs[i]@V[i]
+            average_reward = softermax(V[i])@V[i]
             for j in range(len(my_keys) - 1, -1, -1):
                 key = my_keys[j]
                 move = my_moves[j]
@@ -180,4 +194,5 @@ class MCTSAgent(Agent):
                 cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
             my_keys.append(keys[i])
             my_moves.append(moves[i])
+        
         return moves

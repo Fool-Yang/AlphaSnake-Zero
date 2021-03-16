@@ -1,5 +1,3 @@
-from time import time
-
 from utils.game import Game
 from utils.mp_game_runner import MCTSMPGameRunner
 
@@ -15,7 +13,6 @@ class MPGameRunner:
     
     # Alice and Bob are agents using different nets
     def run(self, Alice, Bob, Alice_snake_cnt = None):
-        t0 = time()
         games = self.games
         show = self.game_cnt == 1
         if Alice_snake_cnt is None:
