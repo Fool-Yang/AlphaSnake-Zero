@@ -25,7 +25,7 @@ class MPGameRunner:
         games = self.games
         show = self.game_cnt == 1
         rewards = [None]*self.game_cnt
-                
+        
         # run all the games in parallel
         turn = 0
         while games:
