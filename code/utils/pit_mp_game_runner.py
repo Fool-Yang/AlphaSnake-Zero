@@ -28,7 +28,7 @@ class MPGameRunner:
             for game_id in games:
                 ids += games[game_id].get_ids()
             moves_A = Alice.make_moves(games, ids)
-            moves_B = Bob.msake_moves(games, ids)
+            moves_B = Bob.make_moves(games, ids)
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(ids)):
                 if ids[i][1] < Alice_snake_cnt:
