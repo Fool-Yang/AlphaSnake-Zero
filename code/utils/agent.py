@@ -185,7 +185,7 @@ class MCTSAgent(Agent):
             my_keys = self.keys[game_id][snake_id]
             my_moves = self.moves[game_id][snake_id]
             # back up
-            average_reward = softermax(V[i])@V[i]
+            average_reward = self.softermax(V[i])@V[i]
             for j in range(len(my_keys) - 1, -1, -1):
                 key = my_keys[j]
                 move = my_moves[j]
