@@ -24,7 +24,7 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
-
+        
         # calculate the max MCTS depth for each game
         MCTS_depth = {game_id: 8//(len(games[game_id].snakes) - 1) for game_id in games}
         # MCTS

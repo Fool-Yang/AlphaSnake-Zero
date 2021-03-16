@@ -1,6 +1,7 @@
 from time import time
 
 from utils.game import Game
+from utils.mp_game_runner import MCTSMPGameRunner
 
 class MPGameRunner:
     
@@ -23,22 +24,17 @@ class MPGameRunner:
         turn = 0
         while games:
             turn += 1
-            states_A = []
-            ids_A = []
-            states_B = []
-            ids_B = []
+            ids = []
             for game_id in games:
-                states = games[game_id].get_states()
-                ids = games[game_id].get_ids()
-                states_A += [states[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                ids_A += [ids[i] for i in range(len(ids)) if ids[i][1] < Alice_snake_cnt]
-                states_B += [states[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
-                ids_B += [ids[i] for i in range(len(ids)) if ids[i][1] >= Alice_snake_cnt]
-            moves = Alice.make_moves(states_A, ids_A) + Bob.make_moves(states_B, ids_B)
-            ids = ids_A + ids_B
+                ids += games[game_id].get_ids()
+            moves_A = Alice.make_moves(games, ids)
+            moves_B = Bob.msake_moves(games, ids)
             moves_for_game = {game_id: [] for game_id in games}
-            for i in range(len(moves)):
-                moves_for_game[ids[i][0]].append(moves[i])
+            for i in range(len(ids)):
+                if ids[i][1] < Alice_snake_cnt:
+                    moves_for_game[ids[i][0]].append(moves_A[i])
+                else:
+                    moves_for_game[ids[i][0]].append(moves_B[i])
             kills = set()
             for game_id in games:
                 game = games[game_id]
