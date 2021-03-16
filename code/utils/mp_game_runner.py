@@ -85,7 +85,7 @@ class MCTSMPGameRunner(MPGameRunner):
     def run(self, MCTSAlice, MCTS_depth):
         t0 = time()
         games = self.games
-        rewards = [None]*len(games)
+        rewards = {game_id: None for game_id in games}
         print("Running", len(games), "MCTS...")
         
         # run all the games in parallel

@@ -24,16 +24,13 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
-        
+
+        # calculate the max MCTS depth for each game
+        MCTS_depth = {game_id: 8//(len(games[game_id].snakes) - 1) for game_id in games}
+        # MCTS
         for _ in range(self.max_MCTS_breadth):
             # make a subgame for each game
-            MCTS_depth = {}
-            subgames = {}
-            for game_id in games:
-                game = games[game_id]
-                MCTS_depth[game_id] = 8//(len(game.snakes) - 1)
-                subgames[game_id] = game.subgame(game_id)
-            
+            subgames = {game_id: games[game_id].subgame(game_id) for game_id in games}
             # run MCTS subgames
             MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
                                   cached_values, total_rewards, visit_cnts)
@@ -54,15 +51,15 @@ class Agent:
                             total_rewards[key][move] += rewards[subgame_id][snake_id]
                             cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
         
-        # set Q values based on the subgames' stats
         V = [None]*len(ids)
-        # the index of the value in V a (game_id, snake_id) coresponds to
+        # store the index of the value in V a (game_id, snake_id) coresponds to
         value_index = {}
         for i in range(len(ids)):
             try:
                 value_index[ids[i][0]][ids[i][1]] = i
             except KeyError:
                 value_index[ids[i][0]] = {ids[i][1]: i}
+        # set Q values based on the subgames' stats
         for subgame_id in MCTSAlice.keys:
                 for snake_id in MCTSAlice.keys[subgame_id]:
                     my_keys = MCTSAlice.keys[subgame_id][snake_id]
@@ -102,6 +99,7 @@ class Agent:
                     argmaxs[i] = 2
         return argmaxs
     
+    # clear memory
     def clear(self):
         self.cached_values = {}
         self.total_rewards = {}
