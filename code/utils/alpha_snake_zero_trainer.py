@@ -31,7 +31,8 @@ class AlphaSnakeZeroTrainer:
         nnet = nnet.copy_and_compile()
         # log
         if iteration == 0:
-            f = open("log.csv", 'w')
+            f = open("log.csv", 'a')
+            f.write("new model " + name + "\n")
             f.write("iteration, wall_collision, body_collision, head_collision, "
                     + "starvation, food_eaten, game_length\n")
             f.close()
@@ -45,7 +46,8 @@ class AlphaSnakeZeroTrainer:
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
             # the second arg is the softmax base (a snake with lower base is more explorative)
-            Alice = Agent(nnet, 2 + 2*iteration, True, self.max_MCTS_depth, self.max_MCTS_breadth)
+            Alice = Agent(nnet, 2 + 2*iteration, True,
+                          self.max_MCTS_depth, self.max_MCTS_breadth, MCTS_epoch)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             gr.run(Alice)
             # log
@@ -58,6 +60,7 @@ class AlphaSnakeZeroTrainer:
             # collect training examples
             X = Alice.records
             V = Alice.values
+            Alice.clear()
             bs = 2048
             if len(X) < bs:
                 bs = len(X)
@@ -73,8 +76,10 @@ class AlphaSnakeZeroTrainer:
             nnet.train(X, V, batch_size = bs)
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
+            X = None
+            V = None
             # save the model
-            print("\nSaving the model...")
+            print("\nSaving the model " + name + str(iteration) + "...")
             iteration += 1
             nnet.save(name + str(iteration))
     

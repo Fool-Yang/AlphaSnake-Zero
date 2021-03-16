@@ -4,7 +4,7 @@ from utils.pit_mp_game_runner import MPGameRunner
 
 from time import time, sleep
 
-pit_games = 300
+pit_games = 1000
 threshold = 0.51
 height = 11
 width = 11
@@ -13,21 +13,22 @@ snake_cnt = 4
 model_name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 iteration = int(input("Enter the starting generation (the first champion):\n"))
 nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
+print(model_name + str(iteration), "is set to be the baseline champion.")
 Alice = Agent(nnet)
 Alice_snake_cnt = snake_cnt//2
-f = open("pit.txt", 'w')
-f.close()
 iteration += 1
+new_challenger = False
 while True:
     try:
         nnet = AlphaNNet(model_name = "models/" + model_name + str(iteration) + ".h5")
+        new_challenger = True
+        print("A new challenger,", model_name + str(iteration))
         Bob = Agent(nnet)
         # compare new net with previous net
         win = 0.0
         loss = 0.0
         t0 = time()
         gr = MPGameRunner(height, width, snake_cnt, 1, pit_games)
-        print("A new challenger,", model_name + str(iteration))
         print("Running games...")
         winner_ids = gr.run(Alice, Bob, Alice_snake_cnt)
         for winner_id in winner_ids:
@@ -42,15 +43,18 @@ while True:
         if score > threshold:
             Alice = Bob
             f = open("pit.txt", 'a')
-            f.write("Iteration " + str(iteration) + " beats the previouse one. score = "
+            f.write(model_name + str(iteration) + " beats the previouse champion. score = "
                     + str(score) + ". It is the new champion!\n")
             f.close()
         else:
             f = open("pit.txt", 'a')
-            f.write("Iteration " + str(iteration) + " failed to beat the previouse one. score = "
+            f.write(model_name + str(iteration) + " failed to beat the previouse champion. score = "
                     + str(score) + ".\n")
             f.close()
         print("Competing time", time() - t0)
         iteration += 1
     except OSError:
+        if new_challenger:
+            print("Waiting for", model_name + str(iteration) + "...")
+            new_challenger = False
         sleep(10)
