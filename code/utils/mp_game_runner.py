@@ -20,7 +20,7 @@ class MPGameRunner:
         self.game_length = 0
     
     # Alice is the agent
-    def run(self, Alice, MCTS_depth = None):
+    def run(self, Alice):
         t0 = time()
         games = self.games
         show = self.game_cnt == 1
