@@ -150,6 +150,8 @@ class MCTSAgent(Agent):
         
         # calculate values using the net
         if all_states:
+            center_y = len(all_states[j])//2
+            center_x = len(all_states[j][0])//2
             calculated_V = self.nnet.v(all_states)
             # assign values calculated by the net and store them into the cache
             i = 0
@@ -158,8 +160,6 @@ class MCTSAgent(Agent):
                 if V[i] is None:
                     if cached_values[keys[i]] is None:
                         # assign -1.0 to known obstacles
-                        center_y = len(all_states[j])//2
-                        center_x = len(all_states[j][0])//2
                         if all_states[j][center_y][center_x - 1][1] <= -0.4:
                             calculated_V[j][0] = -1.0
                         if all_states[j][center_y - 1][center_x][1] <= -0.4:
