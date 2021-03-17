@@ -1,4 +1,4 @@
-from numpy import power, array, float32
+from numpy import power, arctanh, array, float32
 from numpy.random import choice
 from time import time
 
@@ -85,7 +85,7 @@ class Agent:
     # a softmax function with customized base
     def softermax(self, z):
         # the higher the base is, the more it highlights the higher ones
-        normalized = power(self.softmax_base, z)
+        normalized = power(self.softmax_base, arctanh(z))
         return normalized/sum(normalized)
     
     def argmaxs(self, Z):
