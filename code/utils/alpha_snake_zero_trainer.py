@@ -9,12 +9,12 @@ from utils.mp_game_runner import MPGameRunner
 class AlphaSnakeZeroTrainer:
     
     def __init__(self,
+                 self_play_games,
                  max_MCTS_depth,
                  max_MCTS_breadth,
                  height = 11,
                  width = 11,
                  snake_cnt = 4,
-                 self_play_games = 512,
                  TPU = None):
         
         self.max_MCTS_depth = max_MCTS_depth
