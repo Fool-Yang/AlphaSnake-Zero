@@ -76,8 +76,8 @@ class AlphaSnakeZeroTrainer:
             X = None
             V = None
             # save the model
-            print("\nSaving the model " + name + str(iteration) + "...")
             iteration += 1
+            print("\nSaving the model " + name + str(iteration) + "...")
             nnet.save(name + str(iteration))
     
     def mirror_states(self, states):

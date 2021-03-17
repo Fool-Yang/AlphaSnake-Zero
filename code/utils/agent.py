@@ -86,7 +86,12 @@ class Agent:
     def softermax(self, z):
         # the higher the base is, the more it highlights the higher ones
         normalized = power(self.softmax_base, arctanh(z))
-        return normalized/sum(normalized)
+        # in case all three cells are obstacles (-1.0), softmax will fail on 0.0/0.0
+        sigma = sum(normalized)
+        if sigma == 0.0:
+            return array([1.0/3.0]*3, dtype = float32)
+        else:
+            return normalized/sigma
     
     def argmaxs(self, Z):
         argmaxs = [-1] * len(Z)
