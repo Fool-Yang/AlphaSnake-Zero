@@ -179,18 +179,9 @@ class MCTSAgent(Agent):
                     V[i] = cached_values[keys[i]]
                 i += 1
         
-        # make moves
-        moves = []
-        for i in range(len(ids)):
-            ucb = -1.0
-            argmax = 0
-            P = self.softermax(V[i])
-            for j in range(3):
-                Q_U = V[i][j] + P[j]*(sum(visit_cnts[keys[i]]) - 3.0)**0.5/(visit_cnts[keys[i]][j])
-                if Q_U > ucb:
-                    ucb = Q_U
-                    argmax = j
-            moves.append(argmax)
+        # make randomized moves
+        pmfs = [self.softermax(v) for v in V]
+        moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
         
         # update MCTS edge stats
         for i in range(len(ids)):
@@ -199,7 +190,7 @@ class MCTSAgent(Agent):
             my_keys = self.keys[game_id][snake_id]
             my_moves = self.moves[game_id][snake_id]
             # back up
-            average_reward = self.softermax(V[i])@V[i]
+            average_reward = pmfs[i]@V[i]
             for j in range(len(my_keys) - 1, -1, -1):
                 key = my_keys[j]
                 move = my_moves[j]
