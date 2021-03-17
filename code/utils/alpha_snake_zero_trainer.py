@@ -12,17 +12,19 @@ class AlphaSnakeZeroTrainer:
                  self_play_games,
                  max_MCTS_depth,
                  max_MCTS_breadth,
+                 learning_rate = 0.0001,
                  height = 11,
                  width = 11,
                  snake_cnt = 4,
                  TPU = None):
         
+        self.self_play_games = self_play_games
         self.max_MCTS_depth = max_MCTS_depth
         self.max_MCTS_breadth = max_MCTS_breadth
+        self.lr = learning_rate
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
-        self.self_play_games = self_play_games
         self.TPU = TPU
     
     def train(self, nnet, name = "AlphaSnake", iteration = 0):
@@ -68,11 +70,13 @@ class AlphaSnakeZeroTrainer:
             X += self.mirror_states(X)
             V += self.mirror_values(V)
             # training
-            nnet = nnet.copy_and_compile(TPU = self.TPU)
+            nnet = nnet.copy_and_compile(learning_rate = self.lr, TPU = self.TPU)
             t0 = time()
             nnet.train(X, V, batch_size = bs)
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
+            # learning rate decay
+            self.lr *= 0.92
             X = None
             V = None
             # save the model

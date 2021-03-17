@@ -65,16 +65,15 @@ class AlphaNNet:
     def v(self, X):
         return self.v_net.predict(array(X))
     
-    def copy_and_compile(self, TPU = None):
+    def copy_and_compile(self, learning_rate = 0.0001, TPU = None):
         boundaries = [20, 40, 60, 80, 100]
         values = [0.0]*(len(boundaries) + 1)
-        n = 1e-6
+        n = learning_rate
         for i in range(len(boundaries)):
             values[i] = n
             n *= 0.25
         if TPU:
             with TPU.scope():
-                # value
                 nnet_copy = AlphaNNet()
                 nnet_copy.v_net = clone_model(self.v_net)
                 nnet_copy.v_net.build(self.v_net.layers[0].input_shape)
@@ -85,7 +84,6 @@ class AlphaNNet:
                     loss = 'mean_squared_error'
                 )
         else:
-            # value
             nnet_copy = AlphaNNet()
             nnet_copy.v_net = clone_model(self.v_net)
             nnet_copy.v_net.build(self.v_net.layers[0].input_shape)

@@ -9,6 +9,7 @@ number_of_snakes = 4
 self_play_games = 256
 max_MCTS_depth = 8
 max_MCTS_breadth = 32
+initial_learning_rate = 0.0001
 
 try:
     # when running on Google Cloud
@@ -31,6 +32,7 @@ if start == 0:
     ANNet.save(name + "0")
 else:
     ANNet = AlphaNNet(model_name = "models/" + name + str(start) + ".h5")
-Trainer = AlphaSnakeZeroTrainer(self_play_games, max_MCTS_depth, max_MCTS_breadth,
+    initial_learning_rate *= 0.92**start
+Trainer = AlphaSnakeZeroTrainer(self_play_games, max_MCTS_depth, max_MCTS_breadth, initial_learning_rate
                                 game_board_height, game_board_width, number_of_snakes, TPU)
 Trainer.train(ANNet, name = name, iteration = start)
