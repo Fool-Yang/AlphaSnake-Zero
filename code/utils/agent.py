@@ -150,8 +150,8 @@ class MCTSAgent(Agent):
         
         # calculate values using the net
         if all_states:
-            center_y = len(all_states[j])//2
-            center_x = len(all_states[j][0])//2
+            center_y = len(all_states[0])//2
+            center_x = len(all_states[0][0])//2
             calculated_V = self.nnet.v(all_states)
             # assign values calculated by the net and store them into the cache
             i = 0
