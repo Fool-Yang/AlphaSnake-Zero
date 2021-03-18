@@ -6,7 +6,7 @@ from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 100, training = False,
+    def __init__(self, nnet, softmax_base = 1000, training = False,
                  max_MCTS_depth = 8, max_MCTS_breadth = 32):
         self.nnet = nnet
         self.softmax_base = softmax_base
@@ -27,7 +27,7 @@ class Agent:
         visit_cnts = self.visit_cnts
         
         # calculate the max MCTS depth for each game
-        MCTS_depth = {game_id: 8//(len(games[game_id].snakes) - 1) for game_id in games}
+        MCTS_depth = {game_id: max_MCTS_depth - len(games[game_id].snakes) for game_id in games}
         # MCTS
         for _ in range(self.max_MCTS_breadth):
             # make a subgame for each game
@@ -69,7 +69,6 @@ class Agent:
                 my_keys = MCTSAlice.keys[subgame_id][snake_id]
                 V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
         
-        # make moves
         if self.training:
             pmfs = [self.softermax(v) for v in V]
             moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
@@ -80,6 +79,7 @@ class Agent:
             self.values += V
         else:
             moves = self.argmaxs(V)
+        
         return moves
     
     # a softmax function with customized base
