@@ -27,7 +27,8 @@ class Agent:
         visit_cnts = self.visit_cnts
         
         # calculate the max MCTS depth for each game
-        MCTS_depth = {game_id: max_MCTS_depth - len(games[game_id].snakes) for game_id in games}
+        MCTS_depth = {game_id: self.max_MCTS_depth - 2*(len(games[game_id].snakes) - 2)
+                      for game_id in games}
         # MCTS
         for _ in range(self.max_MCTS_breadth):
             # make a subgame for each game
