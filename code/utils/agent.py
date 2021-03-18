@@ -6,7 +6,7 @@ from utils.mp_game_runner import MCTSMPGameRunner
 
 class Agent:
     
-    def __init__(self, nnet, softmax_base = 10, training = False,
+    def __init__(self, nnet, softmax_base = 100, training = False,
                  max_MCTS_depth = 8, max_MCTS_breadth = 32):
         self.nnet = nnet
         self.softmax_base = softmax_base
