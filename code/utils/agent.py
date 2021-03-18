@@ -69,7 +69,7 @@ class Agent:
             for snake_id in MCTSAlice.keys[subgame_id]:
                 my_keys = MCTSAlice.keys[subgame_id][snake_id]
                 V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
-
+        
         # make moves
         if self.training:
             pmfs = [self.softermax(v) for v in V]
