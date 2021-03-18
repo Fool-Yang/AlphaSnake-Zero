@@ -71,17 +71,15 @@ class Agent:
                 V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
         
         # make moves
+        moves = self.argmaxs(V)
         if self.training:
-            pmfs = [self.softermax(v) for v in V]
-            moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
+            # pmfs = [self.softermax(v) for v in V]
+            # moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
             states = []
             for game_id in games:
                 states += games[game_id].get_states()
             self.records += states
             self.values += V
-        else:
-            moves = self.argmaxs(V)
-        
         return moves
     
     # a softmax function with customized base
@@ -192,12 +190,12 @@ class MCTSAgent(Agent):
             my_keys = self.keys[game_id][snake_id]
             my_moves = self.moves[game_id][snake_id]
             # back up
-            average_reward = pmfs[i]@V[i]
+            estimated_reward = max(V[i]) # pmfs[i]@V[i]
             for j in range(len(my_keys) - 1, -1, -1):
                 key = my_keys[j]
                 move = my_moves[j]
                 visit_cnts[key][move] += 1.0
-                total_rewards[key][move] += average_reward
+                total_rewards[key][move] += estimated_reward
                 cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
             my_keys.append(keys[i])
             my_moves.append(moves[i])
