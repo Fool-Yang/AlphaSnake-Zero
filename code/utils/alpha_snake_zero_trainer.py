@@ -38,9 +38,9 @@ class AlphaSnakeZeroTrainer:
             f.close()
         health_dec = 9
         while True:
-            if iteration > 64:
+            if iteration > 32:
                 health_dec = 1
-            elif iteration > 32:
+            elif iteration > 8:
                 health_dec = 3
             # self play
             # for training, all snakes are played by the same agent
@@ -76,7 +76,7 @@ class AlphaSnakeZeroTrainer:
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
             # learning rate decay
-            self.lr *= 0.92
+            self.lr *= 0.9
             X = None
             V = None
             # save the model
