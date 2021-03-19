@@ -8,7 +8,7 @@ pit_games = 1000
 threshold = 0.51
 height = 11
 width = 11
-snake_cnt = 4
+snake_cnt = 2
 
 model_name = input("Enter the model name (not including the generation number nor \".h5\"):\n")
 iteration = int(input("Enter the starting generation (the first champion):\n"))

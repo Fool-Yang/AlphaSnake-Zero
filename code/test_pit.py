@@ -8,7 +8,7 @@ height = 11
 width = 11
 snake_cnt = 4
 health_dec = 1
-competeEps = 100
+competeEps = 300
 
 file_name1 = input("\nEnter the model 1 name:\n")
 file_name2 = input("\nEnter the model 2 name:\n")
@@ -46,6 +46,7 @@ print("1v3 Win Rate of", file_name2, win/(competeEps), "Draw Rate =", draw/(comp
 print("Competing time", time() - t0)
 
 print("\nRunning games...")
+snake_cnt = 2
 win = 0
 loss = 0
 draw = 0
