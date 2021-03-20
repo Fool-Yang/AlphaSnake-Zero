@@ -26,6 +26,8 @@ class Agent:
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
         parallel = 8
+        if self.max_MCTS_breadth < parallel:
+            parallel = self.max_MCTS_breadth
         
         # MCTS
         for _ in range(self.max_MCTS_breadth//parallel):
