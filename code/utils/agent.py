@@ -166,11 +166,11 @@ class MCTSAgent(Agent):
                 if V[i] is None:
                     if cached_values[keys[i]] is None:
                         # assign -1.0 to known obstacles
-                        if all_states[j][center_y][center_x - 1][1] <= -0.4:
+                        if all_states[j][center_y][center_x - 1][1] <= -0.04:
                             calculated_V[j][0] = -1.0
-                        if all_states[j][center_y - 1][center_x][1] <= -0.4:
+                        if all_states[j][center_y - 1][center_x][1] <= -0.04:
                             calculated_V[j][1] = -1.0
-                        if all_states[j][center_y][center_x + 1][1] <= -0.4:
+                        if all_states[j][center_y][center_x + 1][1] <= -0.04:
                             calculated_V[j][2] = -1.0
                         # the calculated Q values will be a prior
                         total_rewards[keys[i]] = calculated_V[j]
