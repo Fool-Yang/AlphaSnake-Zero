@@ -25,14 +25,23 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
+        parallel = 8
         
-        # calculate the max MCTS depth for each game
-        MCTS_depth = {game_id: self.max_MCTS_depth - 2*(len(games[game_id].snakes) - 2)
-                      for game_id in games}
         # MCTS
-        for _ in range(self.max_MCTS_breadth):
+        for _ in range(self.max_MCTS_breadth//parallel):
             # make a subgame for each game
-            subgames = {game_id: games[game_id].subgame(game_id) for game_id in games}
+            MCTS_depth = {}
+            parent_games = {}
+            subgames = {}
+            subgame_id = 0
+            for game_id in games:
+                # calculate the max MCTS depth for each game
+                depth = self.max_MCTS_depth - 2*(len(games[game_id].snakes) - 2)
+                for _ in range(parallel):
+                    MCTS_depth[subgame_id] = depth
+                    parent_games[subgame_id] = game_id
+                    subgames[subgame_id] = games[game_id].subgame(subgame_id)
+                    subgame_id += 1
             # run MCTS subgames
             MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
                                   cached_values, total_rewards, visit_cnts)
@@ -66,14 +75,15 @@ class Agent:
                 value_index[ids[i][0]] = {ids[i][1]: i}
         # set Q values based on the subgames' stats
         for subgame_id in MCTSAlice.keys:
+            game_id = parent_games[subgame_id]
             for snake_id in MCTSAlice.keys[subgame_id]:
-                my_keys = MCTSAlice.keys[subgame_id][snake_id]
-                V[value_index[subgame_id][snake_id]] = cached_values[my_keys[0]]
+                first_key = MCTSAlice.keys[subgame_id][snake_id][0]
+                V[value_index[game_id][snake_id]] = cached_values[first_key]
         
         # make moves
         if self.training:
-            # pmfs = [self.softermax(v) for v in V]
-            # moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
+            pmfs = [self.softermax(v) for v in V]
+            moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
             states = []
             for game_id in games:
                 states += games[game_id].get_states()

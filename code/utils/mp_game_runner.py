@@ -105,7 +105,7 @@ class MCTSMPGameRunner(MPGameRunner):
                 game = games[game_id]
                 result = game.tic(moves_for_game[game_id])
                 # if game ended or MCTS subgame max length reached
-                if result != 0 or game.game_length >= MCTS_depth[game_id]:
+                if result != 0 or turn >= MCTS_depth[game_id]:
                     rewards[game_id] = game.rewards
                     kills.add(game_id)
             # remove games that ended
