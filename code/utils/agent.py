@@ -53,19 +53,24 @@ class Agent:
             if self.training:
                 print("MCTS epoch finished. Time spent:", time() - t0)
             
-            # update the last edge stat if a reward was assigned to the snake
+            # update edge stats
             for subgame_id in MCTSAlice.keys:
                 for snake_id in MCTSAlice.keys[subgame_id]:
                     my_keys = MCTSAlice.keys[subgame_id][snake_id]
                     my_moves = MCTSAlice.moves[subgame_id][snake_id]
                     if not rewards[subgame_id][snake_id] is None:
-                        # back up
-                        for i in range(len(my_keys) - 1, -1, -1):
-                            key = my_keys[i]
-                            move = my_moves[i]
-                            visit_cnts[key][move] += 1.0
-                            total_rewards[key][move] += rewards[subgame_id][snake_id]
-                            cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
+                        estimated_reward = rewards[subgame_id][snake_id]
+                    else:
+                        key = my_keys[-1]
+                        estimated_reward = self.softermax(cached_values[key])@cached_values[key]
+                    # back up
+                    for i in range(len(my_keys) - 1, -1, -1):
+                        key = my_keys[i]
+                        move = my_moves[i]
+                        visit_cnts[key][move] += 1.0
+                        total_rewards[key][move] += estimated_reward
+                        cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
+                        estimated_reward = self.softermax(cached_values[key])@cached_values[key]
         
         V = [None]*len(ids)
         # store the index of the value in V a (game_id, snake_id) coresponds to
@@ -196,21 +201,11 @@ class MCTSAgent(Agent):
         pmfs = [self.softermax(v) for v in V]
         moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
         
-        # update MCTS edge stats
+        # record state keys and moves
         for i in range(len(ids)):
             game_id = ids[i][0]
             snake_id = ids[i][1]
-            my_keys = self.keys[game_id][snake_id]
-            my_moves = self.moves[game_id][snake_id]
-            # back up
-            estimated_reward = pmfs[i]@V[i]
-            for j in range(len(my_keys) - 1, -1, -1):
-                key = my_keys[j]
-                move = my_moves[j]
-                visit_cnts[key][move] += 1.0
-                total_rewards[key][move] += estimated_reward
-                cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
-            my_keys.append(keys[i])
-            my_moves.append(moves[i])
+            self.keys[game_id][snake_id].append(keys[i])
+            self.moves[game_id][snake_id].append(moves[i])
         
         return moves
