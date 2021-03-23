@@ -7,8 +7,8 @@ game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
 self_play_games = 256
-max_MCTS_depth = 8
-max_MCTS_breadth = 32
+max_MCTS_depth = 12
+max_MCTS_breadth = 64
 initial_learning_rate = 0.0001
 
 try:

@@ -7,7 +7,7 @@ from utils.mp_game_runner import MCTSMPGameRunner
 class Agent:
     
     def __init__(self, nnet, softmax_base = 100, training = False,
-                 max_MCTS_depth = 8, max_MCTS_breadth = 32):
+                 max_MCTS_depth = 12, max_MCTS_breadth = 64):
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.training = training
@@ -25,7 +25,7 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
-        parallel = 8
+        parallel = 32
         if self.max_MCTS_breadth < parallel:
             parallel = self.max_MCTS_breadth
         
