@@ -146,7 +146,7 @@ class MCTSAgent(Agent):
         self.keys = {i: {s.id: [] for s in games[i].snakes} for i in games}
         self.moves = {i: {s.id: [] for s in games[i].snakes} for i in games}
     
-    def make_moves(self, games, ids):
+    def make_moves(self, games, ids, rollout):
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
@@ -158,44 +158,39 @@ class MCTSAgent(Agent):
         i = 0
         for game_id in games:
             states = games[game_id].get_states()
-            for state in states:
-                key = state.tostring()
-                keys[i] = key
-                try:
-                    cache = cached_values[key]
-                    if not cache is None:
-                        V[i] = cache
-                except KeyError:
-                    all_states.append(state)
-                    # a new state to be stored
-                    cached_values[key] = None
-                i += 1
+            # rollout
+            if rollout[game_id]:
+                for state in states:
+                    V[i] = self.h(state)
+                    i += 1
+            else:
+                for state in states:
+                    key = state.tostring()
+                    keys[i] = key
+                    try:
+                        cache = cached_values[key]
+                        if not cache is None:
+                            V[i] = cache
+                    except KeyError:
+                        all_states.append(state)
+                        # a new state to be stored
+                        cached_values[key] = None
+                    i += 1
         
         # calculate values using the net
         if all_states:
-            center_y = len(all_states[0])//2
-            center_x = len(all_states[0][0])//2
             calculated_V = self.nnet.v(all_states)
             # assign values calculated by the net and store them into the cache
-            i = 0
             j = 0
-            while i < len(V):
+            for i in range(len(V)):
                 if V[i] is None:
                     if cached_values[keys[i]] is None:
-                        # assign -1.0 to known obstacles
-                        if all_states[j][center_y][center_x - 1][1] <= -0.04:
-                            calculated_V[j][0] = -1.0
-                        if all_states[j][center_y - 1][center_x][1] <= -0.04:
-                            calculated_V[j][1] = -1.0
-                        if all_states[j][center_y][center_x + 1][1] <= -0.04:
-                            calculated_V[j][2] = -1.0
                         # the calculated Q values will be a prior
                         total_rewards[keys[i]] = calculated_V[j]
                         visit_cnts[keys[i]] = array([1.0, 1.0, 1.0], dtype = float32)
                         cached_values[keys[i]] = total_rewards[keys[i]]/visit_cnts[keys[i]]
                         j += 1
                     V[i] = cached_values[keys[i]]
-                i += 1
         
         # make randomized moves
         pmfs = [self.softermax(v) for v in V]
@@ -204,8 +199,12 @@ class MCTSAgent(Agent):
         # record state keys and moves
         for i in range(len(ids)):
             game_id = ids[i][0]
-            snake_id = ids[i][1]
-            self.keys[game_id][snake_id].append(keys[i])
-            self.moves[game_id][snake_id].append(moves[i])
-        
+            if not rollout[game_id]:
+                snake_id = ids[i][1]
+                self.keys[game_id][snake_id].append(keys[i])
+                self.moves[game_id][snake_id].append(moves[i])
         return moves
+    
+    # a heuristic function used in the MCTS random rollout
+    def h(self, state):
+        return array([0.0, 0.0, 0.0], dtype = float32)
