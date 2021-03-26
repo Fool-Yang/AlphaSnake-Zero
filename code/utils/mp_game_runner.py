@@ -1,4 +1,5 @@
 from time import time
+from multiprocessing import Pool
 
 from utils.game import Game
 
@@ -76,8 +77,14 @@ class MPGameRunner:
         self.game_length /= self.game_cnt
         return rewards
 
-class MCTSMPGameRunner(MPGameRunner):
+    def tic_game(self, game_moves):
+        if len(game_moves) > 2:
+            return game_moves[0].tic(game_moves[1], game_moves[2])
+        else:
+            return game_moves[0].tic(game_moves[1])
 
+class MCTSMPGameRunner(MPGameRunner):
+    
     def __init__(self, games):
         self.games = games
     
@@ -99,18 +106,21 @@ class MCTSMPGameRunner(MPGameRunner):
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(moves)):
                 moves_for_game[ids[i][0]].append(moves[i])
+            game_moves_list = [(games[game_id], moves_for_game[game_id]) for game_id in games]
             
             # tic all games
+            pool = Pool(processes = 8)
+            results = pool.map(self.tic_game, game_moves_list)
             kills = set()
-            for game_id in games:
-                game = games[game_id]
-                result = game.tic(moves_for_game[game_id])
+            for i in range(len(results)):
+                game = game_moves_list[i][0]
+                result = results[i]
                 # if game ended or MCTS subgame max length reached
                 if result != 0:
-                    rewards[game_id] = game.rewards
-                    kills.add(game_id)
-                elif turn >= MCTS_depth[game_id]:
-                    rollout[game_id] = True
+                    rewards[game.id] = game.rewards
+                    kills.add(game.id)
+                elif turn >= MCTS_depth[game.id]:
+                    rollout[game.id] = True
             # remove games that ended
             for game_id in kills:
                 del games[game_id]
