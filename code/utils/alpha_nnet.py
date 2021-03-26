@@ -66,7 +66,7 @@ class AlphaNNet:
         V = self.v_net.predict(array(X))
         center_y = len(X[0])//2
         center_x = len(X[0][0])//2
-        for i in range(len(X))
+        for i in range(len(X)):
             # assign -1.0 to known obstacles
             if X[i][center_y][center_x - 1][1] <= -0.04:
                 V[i][0] = -1.0

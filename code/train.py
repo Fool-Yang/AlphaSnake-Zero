@@ -6,9 +6,9 @@ from utils.alpha_snake_zero_trainer import AlphaSnakeZeroTrainer
 game_board_height = 11
 game_board_width = 11
 number_of_snakes = 4
-self_play_games = 256
-max_MCTS_depth = 12
-max_MCTS_breadth = 64
+self_play_games = 128
+max_MCTS_depth = 6
+max_MCTS_breadth = 128
 initial_learning_rate = 0.0001
 
 try:
