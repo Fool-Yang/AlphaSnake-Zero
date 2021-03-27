@@ -13,6 +13,7 @@ class AlphaSnakeZeroTrainer:
                  max_MCTS_depth,
                  max_MCTS_breadth,
                  learning_rate = 0.0001,
+                 learning_rate_decay = 0.98,
                  height = 11,
                  width = 11,
                  snake_cnt = 4,
@@ -22,6 +23,7 @@ class AlphaSnakeZeroTrainer:
         self.max_MCTS_depth = max_MCTS_depth
         self.max_MCTS_breadth = max_MCTS_breadth
         self.lr = learning_rate
+        self.lr_decay = learning_rate_decay
         self.height = height
         self.width = width
         self.snake_cnt = snake_cnt
@@ -76,7 +78,7 @@ class AlphaSnakeZeroTrainer:
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
             # learning rate decay
-            self.lr *= 0.9
+            self.lr *= self.lr_decay
             X = None
             V = None
             # save the model
