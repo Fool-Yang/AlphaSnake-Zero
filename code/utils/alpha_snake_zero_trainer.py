@@ -48,7 +48,7 @@ class AlphaSnakeZeroTrainer:
             # for training, all snakes are played by the same agent
             print("\nSelf playing games...")
             # the second arg is the softmax base (a snake with lower base is more explorative)
-            Alice = Agent(nnet, 10, True, self.max_MCTS_depth, self.max_MCTS_breadth)
+            Alice = Agent(nnet, 2 + iteration, True, self.max_MCTS_depth, self.max_MCTS_breadth)
             gr = MPGameRunner(self.height, self.width, self.snake_cnt, health_dec, self.self_play_games)
             gr.run(Alice)
             # log
