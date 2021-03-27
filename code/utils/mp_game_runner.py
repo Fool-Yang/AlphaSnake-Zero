@@ -87,6 +87,7 @@ class MCTSMPGameRunner(MPGameRunner):
         rewards = {game_id: None for game_id in games}
         
         # run all the games in parallel
+        rollout = {game_id: False for game_id in games}
         turn = 0
         while games:
             turn += 1
@@ -94,7 +95,7 @@ class MCTSMPGameRunner(MPGameRunner):
             ids = []
             for game_id in games:
                 ids += games[game_id].get_ids()
-            moves = MCTSAlice.make_moves(games, ids)
+            moves = MCTSAlice.make_moves(games, ids, rollout)
             moves_for_game = {game_id: [] for game_id in games}
             for i in range(len(moves)):
                 moves_for_game[ids[i][0]].append(moves[i])
@@ -105,9 +106,11 @@ class MCTSMPGameRunner(MPGameRunner):
                 game = games[game_id]
                 result = game.tic(moves_for_game[game_id])
                 # if game ended or MCTS subgame max length reached
-                if result != 0 or turn >= MCTS_depth[game_id]:
+                if result != 0:
                     rewards[game_id] = game.rewards
                     kills.add(game_id)
+                elif turn >= MCTS_depth[game_id]:
+                    rollout[game_id] = True
             # remove games that ended
             for game_id in kills:
                 del games[game_id]
