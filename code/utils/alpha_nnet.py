@@ -16,44 +16,42 @@ class AlphaNNet:
             
             X = Input(input_shape)
             
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(X)
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(X)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
             # a residual block
-            H_shortcut = H
+            H_shortcut = Cropping2D(cropping = 2)(H)
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(BatchNormalization(axis = 3)(H))
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
+            H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
+            
+            H_shortcut = Cropping2D(cropping = 2)(H)
             H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
-            H_shortcut = H
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
-            H_shortcut = H
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
-            H_shortcut = H
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
-            H = Activation('relu')(BatchNormalization(axis = 3)(H))
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
-            H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
-            
-            H_shortcut = H
-            H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
+            H_shortcut = Cropping2D(cropping = 1)(H)
+            H = Conv2D(128, (3, 3), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             H = Conv2D(128, (3, 3), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(Add()([BatchNormalization(axis = 3)(H), H_shortcut]))
             
             H = Conv2D(2, (1, 1), padding = "same", use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
-            
-            H = Activation('relu')(Dense(128, kernel_regularizer = l2(c))(Flatten()(H)))
             
             Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(H))
             

@@ -1,8 +1,8 @@
 from random import sample, choice, random
 from numpy import array, float32, rot90
 
-WALL = -1.0
-FOOD = 1.0
+WALL = 1.0
+MY_HEAD = -1.0
 # mutipliers
 HEALTH_m = 0.01
 SNAKE_m = 0.02
@@ -216,12 +216,12 @@ class Game:
         # gotta do the math to recenter the grid
         width = self.width * 2 - 1
         height = self.height * 2 - 1
-        grid = [[[0.0, WALL, 0.0, 0.0] for col in range(width)] for row in range(height)]
+        grid = [[[0.0, WALL, 0.0] for col in range(width)] for row in range(height)]
         center_y = height//2
         center_x = width//2
         # the original game board
         # it's easier to work on the original board then transfer it onto the grid
-        board = [[[0.0, 0.0, 0.0, 0.0] for col in range(self.width)] for row in range(self.height)]
+        board = [[[0.0, 0.0, 0.0] for col in range(self.width)] for row in range(self.height)]
         
         # positions are (y, x) not (x, y)
         # because you read the grid row by row, i.e. (row number, column number)
@@ -229,23 +229,23 @@ class Game:
         length_minus_half = you.length - 0.5
         for snake in self.snakes:
             # get the head
-            board[snake.head.position[0]][snake.head.position[1]][0] = (length_minus_half - snake.length)*HEAD_m
+            board[snake.head.position[0]][snake.head.position[1]][0] = (snake.length - length_minus_half)*HEAD_m
             # get the body
             # the head is also counted as a body for the making of the state because it will be a body next turn
             # going backwards because there could be a repeated tail when snake eats food
             body = snake.tail
-            dist = -1
+            dist = 1
             while body:
                 board[body.position[0]][body.position[1]][1] = dist*SNAKE_m
                 body = body.prev_node
-                dist -= 1
-            board[snake.head.position[0]][snake.head.position[1]][2] = snake.health*HEALTH_m
+                dist += 1
         
         for food in self.food:
-            board[food[0]][food[1]][3] = FOOD
+            board[food[0]][food[1]][2] = (101 - you.health)*HEALTH_m
         
         # from this point, all positions are measured relative to our head
         head_y, head_x = you.head.position
+        board[head_y][head_x] = [MY_HEAD]*3
         for y in range(self.height):
             for x in range(self.width):
                 grid[y - head_y + center_y][x - head_x + center_x] = board[y][x]
