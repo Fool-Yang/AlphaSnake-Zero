@@ -160,8 +160,9 @@ class MCTSAgent(Agent):
             states = games[game_id].get_states()
             # rollout
             if rollout[game_id]:
+                snake_cnt = len(games[game_id].snakes)
                 for state in states:
-                    V[i] = self.h(state)
+                    V[i] = self.h(state, snake_cnt)
                     i += 1
             else:
                 for state in states:
@@ -206,15 +207,16 @@ class MCTSAgent(Agent):
         return moves
     
     # a heuristic function used in the MCTS random rollout
-    def h(self, state):
-        V = array([0.0, 0.0, 0.0], dtype = float32)
+    def h(self, state, snake_cnt):
+        base_value = 2.0/snake_cnt - 1.0
+        V = array([base_value]*3, dtype = float32)
         center_y = len(state[0])//2
         center_x = len(state[0][0])//2
         # assign -1.0 to known obstacles
-        if state[center_y][center_x - 1][1] >= 0.04:
+        if self.nnet.is_obstacle(state[center_y][left][1]):
             V[0] = -1.0
-        if state[center_y - 1][center_x][1] >= 0.04:
+        if self.nnet.is_obstacle(state[up][center_x][1]):
             V[1] = -1.0
-        if state[center_y][center_x + 1][1] >= 0.04:
+        if self.nnet.is_obstacle(state[center_y][right][1]):
             V[2] = -1.0
         return V
