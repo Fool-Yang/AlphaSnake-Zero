@@ -211,10 +211,10 @@ class MCTSAgent(Agent):
         center_y = len(state[0])//2
         center_x = len(state[0][0])//2
         # assign -1.0 to known obstacles
-        if state[center_y][center_x - 1][1] <= -0.04:
+        if state[center_y][center_x - 1][1] >= 0.04:
             V[0] = -1.0
-        if state[center_y - 1][center_x][1] <= -0.04:
+        if state[center_y - 1][center_x][1] >= 0.04:
             V[1] = -1.0
-        if state[center_y][center_x + 1][1] <= -0.04:
+        if state[center_y][center_x + 1][1] >= 0.04:
             V[2] = -1.0
         return V
