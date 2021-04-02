@@ -53,7 +53,7 @@ class AlphaNNet:
             H = Conv2D(2, (1, 1), use_bias = False, kernel_regularizer = l2(c))(H)
             H = Activation('relu')(BatchNormalization(axis = 3)(H))
             
-            Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(H))
+            Y = Activation('tanh')(Dense(3, kernel_regularizer = l2(c))(Flatten()(H)))
             
             self.v_net = Model(inputs = X, outputs = Y)
     
