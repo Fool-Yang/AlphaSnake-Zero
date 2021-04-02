@@ -60,17 +60,14 @@ class Agent:
                     my_moves = MCTSAlice.moves[subgame_id][snake_id]
                     if not rewards[subgame_id][snake_id] is None:
                         estimated_reward = rewards[subgame_id][snake_id]
-                    else:
-                        key = my_keys[-1]
-                        estimated_reward = self.softermax(cached_values[key])@cached_values[key]
-                    # back up
-                    for i in range(len(my_keys) - 1, -1, -1):
-                        key = my_keys[i]
-                        move = my_moves[i]
-                        visit_cnts[key][move] += 1.0
-                        total_rewards[key][move] += estimated_reward
-                        cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
-                        estimated_reward = self.softermax(cached_values[key])@cached_values[key]
+                        # back up
+                        for i in range(len(my_keys) - 1, -1, -1):
+                            key = my_keys[i]
+                            move = my_moves[i]
+                            visit_cnts[key][move] += 1.0
+                            total_rewards[key][move] += estimated_reward
+                            cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
+                            estimated_reward = self.softermax(cached_values[key])@cached_values[key]
         
         V = [None]*len(ids)
         # store the index of the value in V a (game_id, snake_id) coresponds to
@@ -146,7 +143,7 @@ class MCTSAgent(Agent):
         self.keys = {i: {s.id: [] for s in games[i].snakes} for i in games}
         self.moves = {i: {s.id: [] for s in games[i].snakes} for i in games}
     
-    def make_moves(self, games, ids, rollout):
+    def make_moves(self, games, ids):
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
@@ -158,25 +155,18 @@ class MCTSAgent(Agent):
         i = 0
         for game_id in games:
             states = games[game_id].get_states()
-            # rollout
-            if rollout[game_id]:
-                snake_cnt = len(games[game_id].snakes)
-                for state in states:
-                    V[i] = self.h(state, snake_cnt)
-                    i += 1
-            else:
-                for state in states:
-                    key = state.tostring()
-                    keys[i] = key
-                    try:
-                        cache = cached_values[key]
-                        if not cache is None:
-                            V[i] = cache
-                    except KeyError:
-                        all_states.append(state)
-                        # a new state to be stored
-                        cached_values[key] = None
-                    i += 1
+            for state in states:
+                key = state.tostring()
+                keys[i] = key
+                try:
+                    cache = cached_values[key]
+                    if not cache is None:
+                        V[i] = cache
+                except KeyError:
+                    all_states.append(state)
+                    # a new state to be stored
+                    cached_values[key] = None
+                i += 1
         
         # calculate values using the net
         if all_states:
@@ -197,141 +187,20 @@ class MCTSAgent(Agent):
         pmfs = [self.softermax(v) for v in V]
         moves = [choice([0, 1, 2], p = pmf) for pmf in pmfs]
         
-        # record state keys and moves
+        # update MCTS edge stats and record state keys and moves
         for i in range(len(ids)):
             game_id = ids[i][0]
-            if not rollout[game_id]:
-                snake_id = ids[i][1]
-                self.keys[game_id][snake_id].append(keys[i])
-                self.moves[game_id][snake_id].append(moves[i])
+            snake_id = ids[i][1]
+            my_keys = self.keys[game_id][snake_id]
+            my_moves = self.moves[game_id][snake_id]
+            # back up
+            estimated_reward = pmfs[i]@V[i]
+            for j in range(len(my_keys) - 1, -1, -1):
+                key = my_keys[j]
+                move = my_moves[j]
+                visit_cnts[key][move] += 1.0
+                total_rewards[key][move] += estimated_reward
+                cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
+            my_keys.append(keys[i])
+            my_moves.append(moves[i])
         return moves
-    
-    # a heuristic function used in the MCTS random rollout
-    def h(self, state, snake_cnt):
-        base_value = 2.0/snake_cnt - 1.0
-        one_less_snake = 2.0/(snake_cnt - 1) - 1.0
-        V = array([base_value]*3, dtype = float32)
-        center_y = len(state[0])//2
-        center_x = len(state[0][0])//2
-        up = center_y - 1
-        down = center_y + 1
-        left = center_x - 1
-        right = center_x + 1
-        # detect nearby heads
-        #   O
-        #  XxO
-        # OxHOO
-        #  O|O
-        #   O
-        if state[up][left][0] < 0.0:
-            legal_moves = self.legal_moves(state, (up, left))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[up][left][0] > 0.0:
-            legal_moves = self.legal_moves(state, (up, left))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   O
-        #  OxX
-        # OOHxO
-        #  O|O
-        #   O
-        if state[up][right][0] < 0.0:
-            legal_moves = self.legal_moves(state, (up, right))
-            if legal_moves > 0:
-                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[up][right][0] > 0.0:
-            legal_moves = self.legal_moves(state, (up, right))
-            if legal_moves > 0:
-                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   O
-        #  OOO
-        # OxHOO
-        #  X|O
-        #   O
-        if state[down][left][0] < 0.0:
-            legal_moves = self.legal_moves(state, (down, left))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[down][left][0] > 0.0:
-            legal_moves = self.legal_moves(state, (down, left))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   O
-        #  OOO
-        # OOHxO
-        #  O|X
-        #   O
-        if state[down][right][0] < 0.0:
-            legal_moves = self.legal_moves(state, (down, right))
-            if legal_moves > 0:
-                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[down][right][0] > 0.0:
-            legal_moves = self.legal_moves(state, (down, right))
-            if legal_moves > 0:
-                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   O
-        #  OOO
-        # XxHOO
-        #  O|O
-        #   O
-        if state[center_y][left - 1][0] < 0.0:
-            legal_moves = self.legal_moves(state, (center_y, left - 1))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[down + 1][center_x][0] > 0.0:
-            legal_moves = self.legal_moves(state, (center_y, left - 1))
-            if legal_moves > 0:
-                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   X
-        #  OxO
-        # OOHOO
-        #  O|O
-        #   O
-        if state[up - 1][center_x][0] < 0.0:
-            legal_moves = self.legal_moves(state, (up - 1, center_x))
-            if legal_moves > 0:
-                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[up - 1][center_x][0] > 0.0:
-            legal_moves = self.legal_moves(state, (up - 1, center_x))
-            if legal_moves > 0:
-                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        #   O
-        #  OOO
-        # OOHxX
-        #  O|O
-        #   O
-        if state[center_y][right + 1][0] < 0.0:
-            legal_moves = self.legal_moves(state, (center_y, right + 1))
-            if legal_moves > 0:
-                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
-        elif state[center_y][right + 1][0] > 0.0:
-            legal_moves = self.legal_moves(state, (center_y, right + 1))
-            if legal_moves > 0:
-                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
-        # assign -1.0 to known obstacles
-        if self.nnet.is_obstacle(state[center_y][left][1]):
-            V[0] = -1.0
-        if self.nnet.is_obstacle(state[up][center_x][1]):
-            V[1] = -1.0
-        if self.nnet.is_obstacle(state[center_y][right][1]):
-            V[2] = -1.0
-        return V
-    
-    def legal_moves(self, state, head_position):
-        center_y = head_position[0]
-        center_x = head_position[1]
-        cnt = 0
-        if not self.nnet.is_obstacle(state[center_y][center_x - 1][1]):
-            cnt += 1
-        if not self.nnet.is_obstacle(state[center_y - 1][center_x][1]):
-            cnt += 1
-        if not self.nnet.is_obstacle(state[center_y][center_x + 1][1]):
-            cnt += 1
-        if not self.nnet.is_obstacle(state[center_y + 1][center_x][1]):
-            cnt += 1
-        return cnt
