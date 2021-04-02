@@ -209,9 +209,110 @@ class MCTSAgent(Agent):
     # a heuristic function used in the MCTS random rollout
     def h(self, state, snake_cnt):
         base_value = 2.0/snake_cnt - 1.0
+        one_less_snake = 2.0/(snake_cnt - 1) - 1.0
         V = array([base_value]*3, dtype = float32)
         center_y = len(state[0])//2
         center_x = len(state[0][0])//2
+        up = center_y - 1
+        down = center_y + 1
+        left = center_x - 1
+        right = center_x + 1
+        # detect nearby heads
+        #   O
+        #  XxO
+        # OxHOO
+        #  O|O
+        #   O
+        if state[up][left][0] < 0.0:
+            legal_moves = self.legal_moves(state, (up, left))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[up][left][0] > 0.0:
+            legal_moves = self.legal_moves(state, (up, left))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   O
+        #  OxX
+        # OOHxO
+        #  O|O
+        #   O
+        if state[up][right][0] < 0.0:
+            legal_moves = self.legal_moves(state, (up, right))
+            if legal_moves > 0:
+                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[up][right][0] > 0.0:
+            legal_moves = self.legal_moves(state, (up, right))
+            if legal_moves > 0:
+                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   O
+        #  OOO
+        # OxHOO
+        #  X|O
+        #   O
+        if state[down][left][0] < 0.0:
+            legal_moves = self.legal_moves(state, (down, left))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[down][left][0] > 0.0:
+            legal_moves = self.legal_moves(state, (down, left))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   O
+        #  OOO
+        # OOHxO
+        #  O|X
+        #   O
+        if state[down][right][0] < 0.0:
+            legal_moves = self.legal_moves(state, (down, right))
+            if legal_moves > 0:
+                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[down][right][0] > 0.0:
+            legal_moves = self.legal_moves(state, (down, right))
+            if legal_moves > 0:
+                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   O
+        #  OOO
+        # XxHOO
+        #  O|O
+        #   O
+        if state[center_y][left - 1][0] < 0.0:
+            legal_moves = self.legal_moves(state, (center_y, left - 1))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[down + 1][center_x][0] > 0.0:
+            legal_moves = self.legal_moves(state, (center_y, left - 1))
+            if legal_moves > 0:
+                V[0] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   X
+        #  OxO
+        # OOHOO
+        #  O|O
+        #   O
+        if state[up - 1][center_x][0] < 0.0:
+            legal_moves = self.legal_moves(state, (up - 1, center_x))
+            if legal_moves > 0:
+                V[1] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[up - 1][center_x][0] > 0.0:
+            legal_moves = self.legal_moves(state, (up - 1, center_x))
+            if legal_moves > 0:
+                V[1] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
+        #   O
+        #  OOO
+        # OOHxX
+        #  O|O
+        #   O
+        if state[center_y][right + 1][0] < 0.0:
+            legal_moves = self.legal_moves(state, (center_y, right + 1))
+            if legal_moves > 0:
+                V[2] = ((legal_moves - 1)*base_value + one_less_snake)/legal_moves
+        elif state[center_y][right + 1][0] > 0.0:
+            legal_moves = self.legal_moves(state, (center_y, right + 1))
+            if legal_moves > 0:
+                V[2] = ((legal_moves - 1)*base_value - 1.0)/legal_moves
         # assign -1.0 to known obstacles
         if self.nnet.is_obstacle(state[center_y][left][1]):
             V[0] = -1.0
@@ -220,3 +321,17 @@ class MCTSAgent(Agent):
         if self.nnet.is_obstacle(state[center_y][right][1]):
             V[2] = -1.0
         return V
+    
+    def legal_moves(self, state, head_position):
+        center_y = head_position[0]
+        center_x = head_position[1]
+        cnt = 0
+        if not self.nnet.is_obstacle(state[center_y][center_x - 1][1]):
+            cnt += 1
+        if not self.nnet.is_obstacle(state[center_y - 1][center_x][1]):
+            cnt += 1
+        if not self.nnet.is_obstacle(state[center_y][center_x + 1][1]):
+            cnt += 1
+        if not self.nnet.is_obstacle(state[center_y + 1][center_x][1]):
+            cnt += 1
+        return cnt
