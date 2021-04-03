@@ -7,7 +7,7 @@ from utils.mp_game_runner import MCTSMPGameRunner
 class Agent:
     
     def __init__(self, nnet, softmax_base = 100, training = False,
-                 max_MCTS_depth = 4, max_MCTS_breadth = 128):
+                 max_MCTS_depth = 8, max_MCTS_breadth = 128):
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.training = training
@@ -25,7 +25,7 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
-        parallel = 32
+        parallel = 16
         if self.max_MCTS_breadth < parallel:
             parallel = self.max_MCTS_breadth
         
@@ -38,7 +38,7 @@ class Agent:
             subgame_id = 0
             for game_id in games:
                 # calculate the max MCTS depth for each game
-                depth = self.max_MCTS_depth - (len(games[game_id].snakes) - 2)
+                depth = self.max_MCTS_depth - 2*(len(games[game_id].snakes) - 2)
                 for _ in range(parallel):
                     MCTS_depth[subgame_id] = depth
                     parent_games[subgame_id] = game_id
