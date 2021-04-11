@@ -143,6 +143,7 @@ class Agent:
         self.cached_values = {}
         self.total_rewards = {}
         self.visit_cnts = {}
+        self.cache_hit = {}
         if self.training:
             self.records = []
             self.values = []
