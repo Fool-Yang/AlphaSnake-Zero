@@ -16,6 +16,7 @@ class Agent:
         self.cached_values = {}
         self.total_rewards = {}
         self.visit_cnts = {}
+        self.cache_hit = {}
         # record data for training
         if training:
             self.records = []
@@ -25,7 +26,10 @@ class Agent:
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
-        parallel = 16
+        cache_hit = self.cache_hit
+        for key in cache_hit:
+            cache_hit[key] += 1
+        parallel = 8
         if self.max_MCTS_breadth < parallel:
             parallel = self.max_MCTS_breadth
         
@@ -46,7 +50,7 @@ class Agent:
                     subgame_id += 1
             # run MCTS subgames
             MCTSAlice = MCTSAgent(self.nnet, self.softmax_base, subgames,
-                                  cached_values, total_rewards, visit_cnts)
+                                  cached_values, total_rewards, visit_cnts, cache_hit)
             MCTS = MCTSMPGameRunner(subgames)
             t0 = time()
             rewards = MCTS.run(MCTSAlice, MCTS_depth)
@@ -95,6 +99,17 @@ class Agent:
             self.values += V
         else:
             moves = self.argmaxs(V)
+        
+        # RAM recycle
+        kills = set()
+        for key in cache_hit:
+            if cache_hit[key] > self.max_MCTS_depth:
+                kills.add(key)
+        for key in kills:
+            del cached_values[key]
+            del total_rewards[key]
+            del visit_cnts[key]
+            del cache_hit[key]
         return moves
     
     # a softmax function with customized base
@@ -134,12 +149,13 @@ class Agent:
 
 class MCTSAgent(Agent):
     
-    def __init__(self, nnet, softmax_base, games, cached_values, total_rewards, visit_cnts):
+    def __init__(self, nnet, softmax_base, games, cached_values, total_rewards, visit_cnts, cache_hit):
         self.nnet = nnet
         self.softmax_base = softmax_base
         self.cached_values = cached_values
         self.total_rewards = total_rewards
         self.visit_cnts = visit_cnts
+        self.cache_hit = cache_hit
         self.keys = {i: {s.id: [] for s in games[i].snakes} for i in games}
         self.moves = {i: {s.id: [] for s in games[i].snakes} for i in games}
     
@@ -147,6 +163,7 @@ class MCTSAgent(Agent):
         cached_values = self.cached_values
         total_rewards = self.total_rewards
         visit_cnts = self.visit_cnts
+        cache_hit = self.cache_hit
         V = [None]*len(ids)
         keys = [None]*len(ids)
         all_states = []
@@ -166,6 +183,7 @@ class MCTSAgent(Agent):
                     all_states.append(state)
                     # a new state to be stored
                     cached_values[key] = None
+                cache_hit[key] = 0
                 i += 1
         
         # calculate values using the net
@@ -178,7 +196,7 @@ class MCTSAgent(Agent):
                     if cached_values[keys[i]] is None:
                         # the calculated Q values will be a prior
                         total_rewards[keys[i]] = calculated_V[j]
-                        visit_cnts[keys[i]] = array([1.0, 1.0, 1.0], dtype = float32)
+                        visit_cnts[keys[i]] = array([1.0]*3, dtype = float32)
                         cached_values[keys[i]] = total_rewards[keys[i]]/visit_cnts[keys[i]]
                         j += 1
                     V[i] = cached_values[keys[i]]
