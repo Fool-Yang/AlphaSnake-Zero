@@ -63,15 +63,13 @@ class Agent:
                     my_keys = MCTSAlice.keys[subgame_id][snake_id]
                     my_moves = MCTSAlice.moves[subgame_id][snake_id]
                     if not rewards[subgame_id][snake_id] is None:
-                        estimated_reward = rewards[subgame_id][snake_id]
                         # back up
                         for i in range(len(my_keys) - 1, -1, -1):
                             key = my_keys[i]
                             move = my_moves[i]
                             visit_cnts[key][move] += 1.0
-                            total_rewards[key][move] += estimated_reward
+                            total_rewards[key][move] += rewards[subgame_id][snake_id]
                             cached_values[key][move] = total_rewards[key][move]/visit_cnts[key][move]
-                            estimated_reward = self.softermax(cached_values[key])@cached_values[key]
         
         V = [None]*len(ids)
         # store the index of the value in V a (game_id, snake_id) coresponds to
