@@ -59,22 +59,21 @@ class AlphaSnakeZeroTrainer:
             f.write(log)
             f.close()
             # collect training examples
-            X = Alice.records
-            V = Alice.values
+            batch_size = 2048
+            samples = batch_size*5
+            if samples > len(Alice.records):
+                batch_size = len(Alice.records)
+                samples = batch_size
+            indexs = sample(range(len(Alice.records)), samples)
+            X = [Alice.records[index] for index in indexs]
+            V = [Alice.values[index] for index in indexs]
             Alice.clear()
-            bs = 2048
-            if len(X) < bs:
-                bs = len(X)
-            else:
-                # chop for TPU
-                X = X[len(X) % bs:]
-                V = V[len(V) % bs:]
             X += self.mirror_states(X)
             V += self.mirror_values(V)
             # training
             nnet = nnet.copy_and_compile(learning_rate = self.lr, TPU = self.TPU)
             t0 = time()
-            nnet.train(X, V, batch_size = bs)
+            nnet.train(X, V, batch_size = batch_size)
             print("Training time", time() - t0)
             nnet = nnet.copy_and_compile()
             # learning rate decay
