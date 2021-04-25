@@ -60,7 +60,11 @@ class AlphaSnakeZeroTrainer:
             f.close()
             # collect training examples
             batch_size = 2048
-            samples = batch_size*5
+            max_batches = len(Alice.records)//batch_size
+            batches = 5
+            if batches > max_batches:
+                batches = max_batches
+            samples = batch_size*batches
             if samples > len(Alice.records):
                 batch_size = len(Alice.records)
                 samples = batch_size
