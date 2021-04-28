@@ -1,6 +1,7 @@
 from math import ceil
 from numpy import flip
 from time import time
+from random import sample
 
 from utils.agent import Agent
 from utils.alpha_nnet import AlphaNNet
