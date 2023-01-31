@@ -1,4 +1,4 @@
-# AlphaSnake Zero: A Reinforcement Learning AI for the Game BattleSnake
+# AlphaSnake Zero
 
 ## Presentation
 <figure class="video_container">
