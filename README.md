@@ -22,7 +22,7 @@ TensorFlow 2.1.0
 ## Instructions:
 Go to the "code" folder and run train.py to start training models. It will ask you to enter things. If you enter a starting iteration number greater than 0, it will try to start using the existing model (e.g. if you enter the model name "MySnake", and generation number "7", it will try to open the file "MySnake7.h5" in the "models" folder and start training). Otherwise, it will create a new model and start training. All models will be stored in the "models" folder as .h5 files. "log.csv" will store historical stats of the models.
 
-If you want to change the neural network structure or the optimizer, modify it in "utils/alpha_nnet.py". You should not modify anything else in the "utils" folder.
+If you want to change the neural network structure or the optimizer, modify it in "utils/alpha_nnet.py". You should not modify anything else in the "utils" folder unless you really know what you are doing.
 
 Run pit.py to see competition results between different generations. If a generation beats the last champion it will become the new champion. Since now the algorithm is shifted to the AlphaZero's algorithm, the pit phase is no longer part of the training. You don't have to run pit.py. It only gives you information about the training results. The pit history will be stored in "pit.txt".
 
@@ -36,7 +36,7 @@ Run test_weights.py to see the weight stats of a model.
 
 *Note that the algorithms have been changed and might be slightly different from the ones described in the report.*
 
-*Some Updates:*\
+*Some updates since the report:*\
 *1. AlphaZero's algorithm is introduced where the pit is no longer part of the training.*\
 *2. The MPGameRunner will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*\
 *3. A randomized synchronous parallel MCTS is implemented.*\
