@@ -38,7 +38,7 @@ Run test_weights.py to see the weight stats of a model.
 
 *Some updates since the report:*\
 *1. AlphaZero's algorithm is introduced where the pit is no longer part of the training.*\
-*2. The MPGameRunner will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*\
+*2. The MPGameRunner (kind of like multiprocessing) will run a lot of games in parallel. It collects a large number of states and sends them to the TPU at once, and then tics every game, taking advantage of the TPU.*\
 *3. A randomized synchronous parallel MCTS is implemented.*\
 *4. Cache memory is used to avoid any recalculation of the Q values of a state.*\
 *5. The softmax function does not do well for BattleSnake when all the Q values are outputs of a tanh function, because the range is small (-1, 1).  The arctanh function is used to preprocess value before softmax, making the range (-inf, inf).*
